@@ -1,14 +1,30 @@
+"============================key map============================
+
 " leader
 let mapleader = ' '
+
+noremap R :source $MYVIMRC<CR>
+
+noremap <leader><CR> :nohlsearch<CR>
+
+noremap <C-\> :set  splitright<CR>:vsplit<CR> 
+
+noremap <leader><C-\> :set splitbelow<CR>:split<CR> 
+
+"====================normal configuration=======================
+
+" syntax
+syntax on
+
+let &t_SI="\<Esc>]50;CursorShape=1\x7" " start insert mode
+let &t_SR="\<Esc>]50;CursorShape=2\x7" " end insert mode
+let &t_EI="\<Esc>]50;CursorShape=0\x7" " end insert mode
 
 " others
 set backspace=indent,eol,start  " make that backspace key work the way it should
 set whichwrap+=<,>,h,l
 set encoding=UTF-8
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
-
-" syntax
-syntax on
 
 " history : how many lines of history VIM has to remember
 set history=1000
@@ -27,11 +43,11 @@ set magic                       " For regular expressions turn magic on
 set title                       " change the terminal's title
 set nobackup                    " do not keep a backup file
 
-set novisualbell                " turn off visual bell
-set noerrorbells                " don't beep
-set visualbell t_vb=            " turn off error beep/flash
-set t_vb=
-set tm=500
+"set novisualbell                " turn off visual bell
+"set noerrorbells                " don't beep
+"set visualbell t_vb=            " turn off error beep/flash
+"set t_vb=
+"set tm=500
 
 
 " show location
@@ -66,20 +82,17 @@ set smarttab
 set shiftround
 
 " indent
-set autoindent smartindent shiftround
+"set autoindent smartindent shiftround
 set shiftwidth=4
 set tabstop=4
 set softtabstop=4                " insert mode tab and backspace use 4 spaces
 
-" select & complete
-set selection=inclusive
-set selectmode=mouse,key
-
-set completeopt=longest,menu
+"set completeopt=longest,menu
 set wildmenu                           " show a navigable menu for tab completion"
 set wildmode=longest,list,full
 set wildignore=*.o,*~,*.pyc,*.class
-" ============================ theme and status line ============================
+
+"============================ theme and status line ============================
 
 " theme
 set background=dark
@@ -94,42 +107,26 @@ hi! link ShowMarksHLu DiffChange
 set statusline=%<%f\ %h%m%r%=%k[%{(&fenc==\"\")?&enc:&fenc}%{(&bomb?\",BOM\":\"\")}]\ %-14.(%l,%c%V%)\ %P
 set laststatus=2   " Always show the status line - use 2 lines for the status bar
 
-" ============================key map ============================
-
-noremap R :source $MYVIMRC<CR>
-
-noremap <leader><CR> :nohlsearch<CR>
-
-noremap <C-\> :set  splitright<CR>:vsplit<CR> 
-
-noremap <C--> :set  splitright<CR>:split<CR> 
-
-noremap <C-I> :YcmGenerateConfig -c g++ -v -x c++ -f -b make .<CR>
-
-noremap <F5> :call CurtineIncSw()<CR>
-
-
-
 "--------------------------------Plugins-------------------------------------------------------------
 
 call plug#begin('~/.vim/plugged')
 Plug 'junegunn/vim-easy-align'
-Plug 'https://github.com/junegunn/vim-github-dashboard.git'
-Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+"Plug 'https://github.com/junegunn/vim-github-dashboard.git'
+"Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
+"Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
-Plug 'nsf/gocode', { 'tag': 'v.20150303', 'rtp': 'vim' }
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug '~/my-prototype-plugin'
+"Plug 'nsf/gocode', { 'tag': 'v.20150303', 'rtp': 'vim' }
+"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+"Plug '~/my-prototype-plugin'
 Plug 'https://github.com/ycm-core/YouCompleteMe.git'
 Plug 'Raimondi/delimitMate'
 Plug 'https://github.com/rhysd/vim-clang-format'
 Plug 'Yggdroot/indentLine'
-Plug 'wsdjeg/FlyGrep.vim'
-Plug 'ericcurtin/CurtineIncSw.vim'
+"Plug 'wsdjeg/FlyGrep.vim'
+"Plug 'ericcurtin/CurtineIncSw.vim'
 call plug#end()
-
-" 在上面的vim-plug配置中，以 call plug#begin('~/.vim/plugged') 标识vim-plug配置的开始并显式指定vim插件的存放路径为 ~/.vim/plugged；
-
-"---------------------------------------------------------------------------------------------
+"
+"" 在上面的vim-plug配置中，以 call plug#begin('~/.vim/plugged') 标识vim-plug配置的开始并显式指定vim插件的存放路径为 ~/.vim/plugged；
+"
+""---------------------------------------------------------------------------------------------
