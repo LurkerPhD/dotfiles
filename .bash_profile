@@ -22,4 +22,17 @@ alias "cparaview"="osascript -e 'quit app \"ParaView-5.6.0.app\"' "
 
 alias trash='open ~/.Trash'
 
+setopt NO_LIST_BEEP MENU_COMPLETE AUTO_MENU
+
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+google() {
+    search=""
+    for term in $@; do
+        search="$search%20$term"
+    done
+    open "http://www.google.com/search?q=$search"
+}
+
 neofetch

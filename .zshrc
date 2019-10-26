@@ -71,10 +71,12 @@ ZSH_THEME="ys"
 plugins=(git
         autojump
         colored-man-pages
+        zsh-autosuggestions
         )       
 
+source ~/.bash_profile
+
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 source $ZSH/oh-my-zsh.sh
 
@@ -105,35 +107,5 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
-
-alias chrome="open -a 'Google Chrome'"
-alias "cchrome"="osascript -e 'quit app \"Google Chrome\"' "
-
-alias qq="open -a 'QQ'"
-alias "cqq"="osascript -e 'quit app \"QQ\"' "
-
-alias wps="open -a 'wpsoffice'"
-alias "cwps"="osascript -e 'quit app \"wpsoffice\"' "
-
-alias music="open -a 'NeteaseMusic'"
-alias "cmusic"="osascript -e 'quit app \"NeteaseMusic\"' "
-
-alias paraview="open -a 'ParaView-5.6.0.app'"
-alias "cparaview"="osascript -e 'quit app \"ParaView-5.6.0.app\"' "
-
-alias trash='open ~/.Trash'
-
-setopt NO_LIST_BEEP MENU_COMPLETE AUTO_MENU
-
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-
-google() {
-    search=""
-    for term in $@; do
-        search="$search%20$term"
-    done
-    open "http://www.google.com/search?q=$search"
-}
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
