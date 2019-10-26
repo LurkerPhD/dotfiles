@@ -7,6 +7,7 @@ brew "ranger"
 brew "w3m"
 
 cask "lantern"
+cask "amethyst"
 cask "google-chrome"
 cask "visual-studio-code"
 cask "iina"
