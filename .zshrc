@@ -109,3 +109,8 @@ source $ZSH/oh-my-zsh.sh
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+export PATH="/usr/local/opt/llvm/bin:$PATH"
