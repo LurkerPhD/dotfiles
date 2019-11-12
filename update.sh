@@ -1,6 +1,6 @@
-mv ~/.bash_profile .
-mv ~/.zshrc .
-mv ~/.vimrc .
+cp ~/.bash_profile .
+cp ~/.zshrc .
+cp ~/.vimrc .
 
 git add .
 git commit -am $(date "+%Y-%m-%d_%H:%M:%S")
