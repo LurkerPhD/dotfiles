@@ -1,7 +1,8 @@
-"--------------------------------------------key map--------------------------------------------
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" KeyBoard ShortCut Mapping
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"leader
-let mapleader = ' '
+let mapleader = " "
 
 noremap <leader>\ :set splitright<CR>:vsplit<CR>
 noremap <leader>- :set splitbelow<CR>:split<CR>
@@ -9,180 +10,309 @@ noremap <leader>wh <C-w>h
 noremap <leader>wl <C-w>l
 noremap <leader>wj <C-w>j
 noremap <leader>wk <C-w>k
+noremap <leader>wo <C-w>o
+noremap <leader>wc <C-w>c
+noremap <leader>wn <C-w>n
 
 noremap R :w<CR>:source $MYVIMRC<CR>
 
 map <leader><leader> <Esc>/>anchor<<CR><leader><CR>cf<
 
-map { c{<Esc>p
-map [ c[<Esc>p
-map < c<<Esc>p
-
-noremap gd <C-]>
-"-----------------------------------vim-Plug--------------------------------------------
-
-call plug#begin('~/.vim/plugged')
-if has('nvim')
-    Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
-    Plug 'kristijanhusak/defx-icons'
-else
-    Plug 'Shougo/defx.nvim'
-    Plug 'roxma/nvim-yarp'
-    Plug 'roxma/vim-hug-neovim-rpc'
-endif
-Plug 'kristijanhusak/defx-git'
-Plug 'kristijanhusak/defx-icons'
-
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
-
-Plug 'easymotion/vim-easymotion'
-
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-
-Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
-Plug 'junegunn/vim-easy-align'
-Plug 'severin-lemaignan/vim-minimap'
-
-"Plug 'ycm-core/YouCompleteMe'
-"Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-"Plug 'Raimondi/delimitMate'
-Plug 'rhysd/vim-clang-format'
-Plug 'Yggdroot/indentLine'
-call plug#end()
-"--------------------------------------theme--------------------------------------------
-
-syntax on
-colorscheme dracula
+"map { c{<Esc>p
+"map [ c[<Esc>p
+"map < c<<Esc>p
 
 let &t_SI="\<Esc>]50;CursorShape=1\x7" " start insert mode
 let &t_SR="\<Esc>]50;CursorShape=2\x7" " end insert mode
 let &t_EI="\<Esc>]50;CursorShape=0\x7" " end insert mode
-"-------------------------------------------------------
-" defx configuration
 
-" 使用 ;e 切换显示文件浏览，使用 ;a 查找到当前文件位置
-let g:maplocalleader=';'
-nnoremap <silent> <LocalLeader>e
-            \ :<C-u>Defx -resume -toggle -buffer-name=tab`tabpagenr()`<CR>
-nnoremap <silent> <LocalLeader>a
-            \ :<C-u>Defx -resume -buffer-name=tab`tabpagenr()` -search=`expand('%:p')`<CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 一般设定
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 设定默认解码 
+set fenc=utf-8
+set fencs=utf-8,usc-bom,euc-jp,gb18030,gbk,gb2312,cp936
 
-call defx#custom#option('_', {
-            \ 'columns': 'indent:git:icons:filename',
-            \ 'winwidth': 25,
-            \ 'split': 'vertical',
-            \ 'direction': 'topleft',
-            \ 'listed': 1,
-            \ 'show_ignored_files': 0,
-            \ 'root_marker': '≡ ',
-            \ 'ignored_files':
-            \     '.mypy_cache,.pytest_cache,.git,.hg,.svn,.stversions'
-            \   . ',__pycache__,.sass-cache,*.egg-info,.DS_Store,*.pyc,*.swp'
-            \ })
+" 不要使用vi的键盘模式，而是vim自己的
+set nocompatible
 
-"autocmd FileType defx call s:defx_mappings()
+" history文件中需要记录的行数
+set history=100
 
-" Avoid the white space highting issue
-"autocmd FileType defx match ExtraWhitespace /^^/
-" Keymap in defx
-autocmd FileType defx call s:defx_my_settings()
-function! s:defx_my_settings() abort
-    "IndentLinesDisable
-    "setl spell
-    "setl signcolumn=yes
-    setl number
-    nnoremap <silent><buffer><expr> <CR>
-                \ defx#is_directory() ?
-                \ defx#do_action('open_or_close_tree') :
-                \ defx#do_action('drop',)
-    nmap <silent><buffer><expr> <2-LeftMouse>
-                \ defx#is_directory() ?
-                \ defx#do_action('open_or_close_tree') :
-                \ defx#do_action('drop',)
-    "nnoremap <silent><buffer><expr> s defx#do_action('drop', 'split')
-    "nnoremap <silent><buffer><expr> v defx#do_action('drop', 'vsplit')
-    "nnoremap <silent><buffer><expr> t defx#do_action('drop', 'tabe')
-    "nnoremap <silent><buffer><expr> o defx#do_action('open_tree')
-    "nnoremap <silent><buffer><expr> O defx#do_action('open_tree_recursive')
-    "nnoremap <silent><buffer><expr> C defx#do_action('copy')
-    "nnoremap <silent><buffer><expr> P defx#do_action('paste')
-    "nnoremap <silent><buffer><expr> M defx#do_action('rename')
-    "nnoremap <silent><buffer><expr> D defx#do_action('remove_trash')
-    "nnoremap <silent><buffer><expr> A defx#do_action('new_multiple_files')
-    "nnoremap <silent><buffer><expr> U defx#do_action('cd', ['..'])
-    "nnoremap <silent><buffer><expr> . defx#do_action('toggle_ignored_files')
-    "nnoremap <silent><buffer><expr> <Space> defx#do_action('toggle_select')
-    "nnoremap <silent><buffer><expr> R defx#do_action('redraw')
+" 在处理未保存或只读文件的时候，弹出确认
+set confirm
+
+" 与windows共享剪贴板
+set clipboard+=unnamed
+
+" 侦测文件类型
+filetype on
+
+" 载入文件类型插件
+filetype plugin on
+
+" 为特定文件类型载入相关缩进文件
+filetype indent on
+
+" 保存全局变量
+set viminfo+=!
+
+" 带有如下符号的单词不要被换行分割
+set iskeyword+=_,$,@,%,#,-
+
+" 语法高亮
+syntax on
+
+" 高亮字符，让其不受100列限制
+:highlight OverLength ctermbg=red ctermfg=white guibg=redguifg=white
+:match OverLength '\%101v.*'
+
+" 状态行颜色
+highlight StatusLine guifg=SlateBlue guibg=Yellow
+highlight StatusLineNC guifg=Gray guibg=White
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 文件设置
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" 不要备份文件（根据自己需要取舍）
+set nobackup
+
+" 不要生成swap文件，当buffer被丢弃的时候隐藏它
+setlocal noswapfile
+set bufhidden=hide
+
+" 字符间插入的像素行数目
+set linespace=0
+
+" 增强模式中的命令行自动完成操作
+set wildmenu
+
+" 在状态行上显示光标所在位置的行号和列号
+set ruler
+set rulerformat=%20(%2*%<%f%=\ %m%r\ %3l\ %c\%p%%%)
+
+" 命令行（在状态行下）的高度，默认为1，这里是2
+set cmdheight=2
+
+" 使回格键（backspace）正常处理indent, eol, start等
+set backspace=2
+
+" 允许backspace和光标键跨越行边界
+set whichwrap+=<,>,h,l
+
+" 可以在buffer的任何地方使用鼠标（类似office中在工作区双击鼠标定位）
+set mouse=a
+set selection=exclusive
+set selectmode=mouse,key
+
+" 通过使用: commands命令，告诉我们文件的哪一行被改变过
+set report=0
+
+" 不让vim发出讨厌的滴滴声
+set noerrorbells
+
+" 在被分割的窗口间显示空白，便于阅读
+set fillchars=vert:\ ,stl:\ ,stlnc:\
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 搜索和匹配
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 高亮显示匹配的括号
+set showmatch
+
+" 匹配括号高亮的时间（单位是十分之一秒）
+set matchtime=5
+
+" 在搜索的时候忽略大小写
+set ignorecase
+
+" 不要高亮被搜索的句子（phrases）
+set hlsearch
+"Fast no highlight
+noremap <leader><cr> :noh<cr>
+
+" 在搜索时，输入的词句的逐字符高亮（类似firefox的搜索）
+set incsearch
+
+" 输入:set list命令是应该显示些啥？
+"set listchars=tab:\|\,trail:.,extends:>,precedes:<,eol:$
+
+" 光标移动到buffer的顶部和底部时保持3行距离
+set scrolloff=25
+
+" 不要闪烁
+set novisualbell
+
+" 我的状态行显示的内容（包括文件类型和解码）
+set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\[TYPE=%Y]\ [POS=%l,%v][%p%%]
+
+" 总是显示状态行
+set laststatus=2
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 文本格式和排版
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 自动格式化
+set formatoptions=tcrqn
+
+" 继承前一行的缩进方式，特别适用于多行注释
+set autoindent
+
+" 为C程序提供自动缩进
+set smartindent
+
+" 使用C样式的缩进
+set cindent
+
+" 制表符为4
+set tabstop=4
+
+" 制表符为4
+set softtabstop=4
+set shiftwidth=4
+
+" 不要用空格代替制表符
+set noexpandtab
+
+" 不要换行
+set nowrap
+
+" 在行和段开始处使用制表符
+set smarttab
+
+" 高亮显示光标
+set cursorcolumn
+set cursorline
+" 显示行和列
+set ruler                       " show the current row and column
+set number relativenumber
+augroup numbertoggle
+	autocmd!
+	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+	autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
+augroup END
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" CTags的设定
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" 按照名称排序
+let Tlist_Sort_Type = "name"
+
+" 在右侧显示窗口
+let Tlist_Use_Right_Window = 1
+
+" 压缩方式
+let Tlist_Compart_Format = 1
+
+" 如果只有一个buffer，kill窗口也kill掉buffer
+let Tlist_Exist_OnlyWindow = 1
+
+" 不要关闭其他文件的tags
+let Tlist_File_Fold_Auto_Close = 0
+
+" 不要显示折叠树
+let Tlist_Enable_Fold_Column = 0
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Autocommands
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" F5编译和运行C程序，F6编译和运行C++程序
+" 请注意，下述代码在windows下使用会报错
+" 需要去掉./这两个字符
+
+" C的编译和运行
+map <F5> :callCompileRunGcc()<CR>
+func! CompileRunGcc()
+	exec "w"
+	exec "!gcc % -o %<"
+	exec "! ./%<"
+endfunc
+
+" C++的编译和运行
+map <F6> :callCompileRunGpp()<CR>
+func! CompileRunGpp()
+	exec "w"
+	exec "!g++ % -o %<"
+	exec "! ./%<"
+endfunc
+
+" 能够漂亮地显示.NFO文件
+set encoding=utf-8
+function! SetFileEncodings(encodings)
+	    letb:myfileencodingsbak=&fileencodings
+	    let&fileencodings=a:encodings
+endfunction
+function! RestoreFileEncodings()
+	    let&fileencodings=b:myfileencodingsbak
+	    unletb:myfileencodingsbak
 endfunction
 
-" Defx icons
-" Requires nerd-font, install at https://github.com/ryanoasis/nerd-fonts or
-" brew cask install font-hack-nerd-font
-" Then set non-ascii font to Driod sans mono for powerline in iTerm2
-" disbale syntax highlighting to prevent performence issue
-"let g:defx_icons_enable_syntax_highlight = 1
-""-----------------------------------------------------
-" Start interactive EasyAlign in visual mode (e.g. vipga)
-xmap <leader>a <Plug>(EasyAlign)
-" Start interactive EasyAlign for a motion/text object (e.g. gaip)
-nmap <leader>a <Plug>(EasyAlign)
-""-----------------------------------------------------
-let g:clang_format#style_options = {
-            \ "AccessModifierOffset" : -4,
-            \ "AllowShortIfStatementsOnASingleLine" : "true",
-            \ "AlwaysBreakTemplateDeclarations" : "true",
-            \ "Standard" : "C++11"}
+au BufReadPre *.nfo call SetFileEncodings('cp437')|setambiwidth=single
+au BufReadPost *.nfo call RestoreFileEncodings() 
 
-" map to <Leader>cf in C++ code
-autocmd FileType c,cpp,objc nnoremap <buffer><Leader>cf :<C-u>ClangFormat<CR>
-autocmd FileType c,cpp,objc vnoremap <buffer><Leader>cf :ClangFormat<CR>
-" if you install vim-operator-user
-autocmd FileType c,cpp,objc map <buffer><Leader>x <Plug>(operator-clang-format)
-" Toggle auto formatting:
-nmap <Leader>C :ClangFormatAutoToggle<CR>
-""-----------------------------------------------------
+" 用空格键来开关折叠
+set foldenable
+set foldmethod=manual
+nnoremap <space>@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
 
-function! HeaderToggle() " bang for overwrite when saving vimrc
-    let file_path = expand("%")
-    let file_name = expand("%<")
-    let extension = split(file_path, '\.')[-1] " '\.' is how you really split on dot
-    let err_msg = "There is no file "
 
-    if extension == "cpp"
-        let next_file = join([file_name, ".h"], "")
 
-        if filereadable(next_file)
-            <CR>F %<.h
-        else
-            echo join([err_msg, next_file], "")
-        endif
-    elseif extension == "h"
-        let next_file = join([file_name, ".c"], "")
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-Plug
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-        if filereadable(next_file)
-            <CR>F %<.c
-        else
-            echo join([err_msg, next_file], "")
-        endif
-    endif
-endfunction
-nnoremap <Leader>o :call HeaderToggle()<CR>
-""-----------------------------------------------------
+call plug#begin('~/.vim/plugged')
 
-" 使用 ss 启用
-nmap ss <Plug>(easymotion-s2)
-""-----------------------------------------------------
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-" vim mini map configuration
-let g:minimap_toggle='<leader>mm'
-""-----------------------------------------------------
+if has('nvim')
+	Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
+	Plug 'kristijanhusak/defx-icons'
+else
+	Plug 'Shougo/defx.nvim'
+	Plug 'roxma/nvim-yarp'
+	Plug 'roxma/vim-hug-neovim-rpc'
+endif
+Plug 'kristijanhusak/defx-git'
+
+"Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'w0ng/vim-hybrid'
+
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+Plug 'junegunn/vim-easy-align'
+
+Plug 'rhysd/vim-clang-format'
+
+Plug 'Yggdroot/indentLine'
+
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+
+Plug 'terryma/vim-multiple-cursors' " 多光标同时编辑
+
+Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
+
+Plug 'dense-analysis/ale'
+
+call plug#end()
+
+"""""""""""""""""""""""""""""""""""""
+" color theme configuration
+"""""""""""""""""""""""""""""""""""""
+
+let g:hybrid_custom_term_colors = 1
+let g:hybrid_reduced_contrast = 1 " Remove this line if using the default palette.
+colorscheme hybrid
+
+"""""""""""""""""""""""""""""""""""""
+" coc configuration
+"""""""""""""""""""""""""""""""""""""
+
 " if hidden is not set, TextEdit might fail.
 set hidden
 
@@ -205,14 +335,14 @@ set signcolumn=yes
 " Use tab for trigger completion with characters ahead and navigate.
 " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
 inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
+			\ pumvisible() ? "\<C-n>" :
+			\ <SID>check_back_space() ? "\<TAB>" :
+			\ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
+	let col = col('.') - 1
+	return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
 " Use <c-space> to trigger completion.
@@ -238,11 +368,11 @@ nmap <silent> gr <Plug>(coc-references)
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
+	if (index(['vim','help'], &filetype) >= 0)
+		execute 'h '.expand('<cword>')
+	else
+		call CocAction('doHover')
+	endif
 endfunction
 
 " Highlight symbol under cursor on CursorHold
@@ -251,21 +381,17 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
 
-" Remap for format selected region
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
-
 augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+	autocmd!
+	" Setup formatexpr specified filetype(s).
+	autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+	" Update signature help on jump placeholder
+	autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
 
 " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
+xmap <leader>aap  <Plug>(coc-codeaction-selected)
+nmap <leader>aap <Plug>(coc-codeaction-selected)
 
 " Remap for do codeAction of current line
 nmap <leader>ac  <Plug>(coc-codeaction)
@@ -302,7 +428,7 @@ nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
 " Show commands
 nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document
-nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
+nnoremap <silent> <space>o  :<C-u>CocList files<cr>
 " Search workspace symbols
 nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
@@ -311,78 +437,96 @@ nnoremap <silent> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
-"------------------------------------others------------------------------------
 
-set backspace=indent,eol,start  " make that backspace key work the way it should
-set whichwrap+=<,>,h,l
-set encoding=UTF-8
-set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+" grep word under cursor
+command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args>
+
+function! s:GrepArgs(...)
+	let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
+				\ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
+	return join(list, "\n")
+endfunction
+
+" Keymapping for grep word under cursor with interactive mode
+nnoremap <silent> <Leader>df :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
+
+vnoremap <leader>g :<C-u>call <SID>GrepFromSelected(visualmode())<CR>
+nnoremap <leader>g :<C-u>set operatorfunc=<SID>GrepFromSelected<CR>g@
+
+function! s:GrepFromSelected(type)
+	let saved_unnamed_register = @@
+	if a:type ==# 'v'
+		normal! `<v`>y
+	elseif a:type ==# 'char'
+		normal! `[v`]y
+	else
+		return
+	endif
+	let word = substitute(@@, '\n$', '', 'g')
+	let word = escape(word, '| ')
+	let @@ = saved_unnamed_register
+	execute 'CocList grep '.word
+endfunction
 
 
-" history : how many lines of history VIM has to remember
-set history=1000
+"""""""""""""""""""""""""""""""""""""
+" defx configration 
+"""""""""""""""""""""""""""""""""""""
 
-" filetype vi
-filetype off
-" Enable filetype plugins
-filetype plugin indent on
+" 使用 ;e 切换显示文件浏览，使用 ;a 查找到当前文件位置
+let g:maplocalleader=';'
+nnoremap <silent> <LocalLeader>e
+			\ :<C-u>Defx -columns=icons:indent:filename:type -resume -toggle -buffer-name=tab`tabpagenr()`<CR>
+nnoremap <silent> <LocalLeader>a
+			\ :<C-u>Defx -columns=icons:indent:filename:type -resume -buffer-name=tab`tabpagenr()` -search=`expand('%:p')`<CR>
 
-" base
-set nocompatible                " don't bother with vi compatibility
-set autoread                    " reload files when changed on disk, i.e. via `git checkout`
-set shortmess=atI
+autocmd FileType defx call s:defx_my_settings()
+function! s:defx_my_settings() abort
+	setl spell
+	setl signcolumn=yes
+	setl number
+	nnoremap <silent><buffer><expr> <CR>
+				\ defx#is_directory() ?
+				\ defx#do_action('open_or_close_tree') :
+				\ defx#do_action('drop',)
+	nmap <silent><buffer><expr> <2-LeftMouse>
+				\ defx#is_directory() ?
+				\ defx#do_action('open_or_close_tree') :
+				\ defx#do_action('drop',)
+	nnoremap <silent><buffer><expr> s defx#do_action('drop', 'split')
+	nnoremap <silent><buffer><expr> v defx#do_action('drop', 'vsplit')
+	nnoremap <silent><buffer><expr> t defx#do_action('drop', 'tabe')
+	nnoremap <silent><buffer><expr> o defx#do_action('open_tree')
+	nnoremap <silent><buffer><expr> O defx#do_action('open_tree_recursive')
+	nnoremap <silent><buffer><expr> C defx#do_action('copy')
+	nnoremap <silent><buffer><expr> P defx#do_action('paste')
+	nnoremap <silent><buffer><expr> M defx#do_action('rename')
+	nnoremap <silent><buffer><expr> D defx#do_action('remove_trash')
+	nnoremap <silent><buffer><expr> A defx#do_action('new_multiple_files')
+	nnoremap <silent><buffer><expr> U defx#do_action('cd', ['..'])
+	nnoremap <silent><buffer><expr> . defx#do_action('toggle_ignored_files')
+	nnoremap <silent><buffer><expr> <Space> defx#do_action('toggle_select')
+	nnoremap <silent><buffer><expr> R defx#do_action('redraw')
+endfunction
 
-set magic                       " For regular expressions turn magic on
-set title                       " change the terminal's title
-set nobackup                    " do not keep a backup file
+call defx#custom#option('_', {
+			\ 'winwidth': 30,
+			\ 'split': 'vertical',
+			\ 'direction': 'topleft',
+			\ 'show_ignored_files': 0,
+			\ 'buffer_name': '',
+			\ 'toggle': 1,
+			\ 'resume': 1
+			\ })
+"""""""""""""""""""""""""""""""""""""
+" clang_format configration 
+"""""""""""""""""""""""""""""""""""""
 
-set novisualbell                " turn off visual bell
-set noerrorbells                " don't beep
-"set visualbell t_vb=            " turn off error beep/flash
-"set t_vb=
-"set tm=500
+let g:clang_format#style_optrions={'cpp':{"Standard":"C++17"},}
 
-" show location
-set cursorcolumn
-set cursorline
+"""""""""""""""""""""""""""""""""""""
+" ale configration 
+"""""""""""""""""""""""""""""""""""""
 
-" show
-set ruler                       " show the current row and column
-
-set number relativenumber
-augroup numbertoggle
-    autocmd!
-    autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
-    autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
-augroup END
-
-set scrolloff=25
-set nowrap
-set showcmd                     " display incomplete commands
-set showmode                    " display current modes
-set showmatch                   " jump to matches when entering parentheses
-set matchtime=2                 " tenths of a second to show the matching parenthesis
-
-" search
-set hlsearch                    " highlight searches
-set incsearch                   " do incremental searching, search as you type
-set ignorecase                  " ignore case when searching
-set smartcase                   " no ignorecase if Uppercase char present
-
-" tab
-set expandtab                   " expand tabs to spaces
-set smarttab
-set shiftround
-
-" indent
-"set autoindent smartindent shiftround
-set shiftwidth=4
-set tabstop=4
-set softtabstop=4                " insert mode tab and backspace use 4 spaces
-
-"set completeopt=longest,menu
-set wildmenu                           " show a navigable menu for tab completion"
-set wildmode=longest,list,full
-set wildignore=*.o,*~,*.pyc,*.class
 
 

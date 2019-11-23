@@ -5,23 +5,6 @@ export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 alias ls="ls -GFh -a"
 
-alias chrome="open -a 'Google Chrome.app'"
-alias "cchrome"="osascript -e 'quit app \"Google Chrome.app\"' "
-
-alias qq="open -a 'QQ'"
-alias "cqq"="osascript -e 'quit app \"QQ.app\"' "
-
-alias wps="open -a 'wpsoffice'"
-alias "cwps"="osascript -e 'quit app \"wpsoffice.app\"' "
-
-alias music="open -a 'Music.app'"
-alias "cmusic"="osascript -e 'quit app \"Music.app\"' "
-
-alias paraview="open -a 'paraview-5.6.0.app'"
-alias "cparaview"="osascript -e 'quit app \"paraview-5.6.0.app\"' "
-
-alias trash='open ~/.Trash'
-
 alias vim=nvim
 
 setopt NO_LIST_BEEP MENU_COMPLETE AUTO_MENU
@@ -45,6 +28,15 @@ baidu() {
     open "http://www.baidu.com/s?wd=$search" }
 
 neofetch
-export SDKROOT="$(xcrun --show-sdk-path)"
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+export SDKROOT="$(xcrun --show-sdk-path)"
+# Load RVM into a shell session *as a function*
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" 
+
+# export PATH="$PATH:/usr/local/opt/llvm/bin"
+# export PATH="/usr/local/opt/llvm/bin:$PATH"
+C_INCLUDE_PATH=/usr/local/include/
+export C_INCLUDE_PATH
+CPLUS_INCLUDE_PATH=/usr/local/include/
+export CPLUS_INCLUDE_PATH
+export LIBRARY_PATH=/usr/local/lib/
