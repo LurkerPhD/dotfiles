@@ -22,13 +22,18 @@ noremap <leader>wo <C-w>o
 noremap <leader>wc <C-w>c
 noremap <leader>wn <C-w>n
 
+imap hhh <Esc>
+imap jjj <Esc>
+imap kkk <Esc>
+imap lll <Esc>
+imap <C-h> <left>
+imap <C-j> <up>
+imap <C-k> <down>
+imap <C-l> <right>
+
 map <leader><leader> <Esc>/>anchor<<CR><leader><CR>cf<
 
 map <leader>pp :call CurtineIncSw()<CR>
-
-"map { c{<Esc>p
-"map [ c[<Esc>p
-"map < c<<Esc>p
 
 let &t_SI="\<Esc>]50;CursorShape=1\x7" " start insert mode
 let &t_SR="\<Esc>]50;CursorShape=2\x7" " end insert mode
@@ -126,6 +131,7 @@ set fillchars=vert:\ ,stl:\ ,stlnc:\
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 搜索和匹配
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 " 高亮显示匹配的括号
 set showmatch
 
@@ -161,6 +167,7 @@ set laststatus=2
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 文本格式和排版
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 " 自动格式化
 set formatoptions=tcrqn
 
@@ -173,12 +180,12 @@ set smartindent
 " 使用C样式的缩进
 set cindent
 
-" 制表符为4
-set tabstop=4
+" 制表符为2
+set tabstop=2
 
-" 制表符为4
-set softtabstop=4
-set shiftwidth=4
+" 制表符为2
+set softtabstop=2
+set shiftwidth=2
 
 " 不要用空格代替制表符
 set noexpandtab
@@ -265,9 +272,6 @@ au BufReadPost *.nfo call RestoreFileEncodings()
 set foldenable
 set foldmethod=manual
 nnoremap <space>@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
-
-
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-Plug
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -449,47 +453,36 @@ nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 
 " grep word under cursor
-command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args>
+command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args> "
 
 function! s:GrepArgs(...)
-	let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
-				\ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
-	return join(list, "\n")
+  let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
+        \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
+  return join(list, "\n")
 endfunction
 
 " Keymapping for grep word under cursor with interactive mode
-nnoremap <silent> <Leader>df :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
+nnoremap <silent> <Leader>cf :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
 
 vnoremap <leader>g :<C-u>call <SID>GrepFromSelected(visualmode())<CR>
 nnoremap <leader>g :<C-u>set operatorfunc=<SID>GrepFromSelected<CR>g@
 
 function! s:GrepFromSelected(type)
-	let saved_unnamed_register = @@
-	if a:type ==# 'v'
-/*
- * .vimrc
- * Copyright (C) 2019 Lurker <wangzhecheng@yeah.net>
- *
- * Distributed under terms of the MIT license.
- */
-
-#include ".vimrc.h"
-
-
-
-		normal! `<v`>y
-	elseif a:type ==# 'char'
-		normal! `[v`]y
-	else
-		return
-	endif
-	let word = substitute(@@, '\n$', '', 'g')
-	let word = escape(word, '| ')
-	let @@ = saved_unnamed_register
-	execute 'CocList grep '.word
+  let saved_unnamed_register = @@
+  if a:type ==# 'v'
+    normal! `<v`>y
+  elseif a:type ==# 'char'
+    normal! `[v`]y
+  else
+    return
+  endif
+  let word = substitute(@@, '\n$', '', 'g')
+  let word = escape(word, '| ')
+  let @@ = saved_unnamed_register
+  execute 'CocList grep '.word
 endfunction
 
-
+nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
 """""""""""""""""""""""""""""""""""""
 " defx configration 
 """""""""""""""""""""""""""""""""""""
@@ -563,6 +556,11 @@ hi def link Defx_git_Ignored Comment
 let g:defx_icons_enable_syntax_highlight = 1
 
 let g:syntastic_cpp_compiler_options = '-std=c++17'
+"""""""""""""""""""""""""""""""""""""
+" indentLine configration 
+"""""""""""""""""""""""""""""""""""""
+
+let g:indentLine_setColors = 0
 
 """""""""""""""""""""""""""""""""""""
 " cpp-enhance-highlight configration 
