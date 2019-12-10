@@ -1,11 +1,19 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " KeyBoard ShortCut Mapping
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" leader健为空格
 let mapleader = " "
+
+" vimrc自动生效
+autocmd BufWritePost $MYVIMRC source $MYVIMRC 
+" hi MatchParen cterm=none ctermbg=red ctermfg=blue
+hi MatchParen guibg=NONE guifg=blue gui=bold
 
 noremap <leader>\ :set splitright<CR>:vsplit<CR>
 noremap <leader>- :set splitbelow<CR>:split<CR>
+noremap H ^
+noremap L $
 noremap <leader>wh <C-w>h
 noremap <leader>wl <C-w>l
 noremap <leader>wj <C-w>j
@@ -14,9 +22,9 @@ noremap <leader>wo <C-w>o
 noremap <leader>wc <C-w>c
 noremap <leader>wn <C-w>n
 
-noremap R :w<CR>:source $MYVIMRC<CR>
-
 map <leader><leader> <Esc>/>anchor<<CR><leader><CR>cf<
+
+map <leader>pp :call CurtineIncSw()<CR>
 
 "map { c{<Esc>p
 "map [ c[<Esc>p
@@ -76,7 +84,7 @@ highlight StatusLineNC guifg=Gray guibg=White
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " 不要备份文件（根据自己需要取舍）
-set nobackup
+" set nobackup
 
 " 不要生成swap文件，当buffer被丢弃的时候隐藏它
 setlocal noswapfile
@@ -268,6 +276,8 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
+Plug 'jackguo380/vim-lsp-cxx-highlight'
+
 if has('nvim')
 	Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
 	Plug 'kristijanhusak/defx-icons'
@@ -279,25 +289,24 @@ endif
 Plug 'kristijanhusak/defx-git'
 
 "Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'w0ng/vim-hybrid'
+" Plug 'w0ng/vim-hybrid'
+Plug 'morhetz/gruvbox'
 
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
 Plug 'junegunn/vim-easy-align'
 
-Plug 'rhysd/vim-clang-format'
-
 Plug 'Yggdroot/indentLine'
 
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 
-Plug 'terryma/vim-multiple-cursors' " 多光标同时编辑
-
 Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
 
-Plug 'dense-analysis/ale'
+Plug 'vim-scripts/DoxygenToolkit.vim' "doxygen 自动注释
+
+Plug  'ericcurtin/CurtineIncSw.vim' "switch between cpp and head file
 
 call plug#end()
 
@@ -307,8 +316,8 @@ call plug#end()
 
 let g:hybrid_custom_term_colors = 1
 let g:hybrid_reduced_contrast = 1 " Remove this line if using the default palette.
-colorscheme hybrid
-
+colorscheme gruvbox 
+set background=dark
 """""""""""""""""""""""""""""""""""""
 " coc configuration
 """""""""""""""""""""""""""""""""""""
@@ -405,11 +414,12 @@ omap if <Plug>(coc-funcobj-i)
 omap af <Plug>(coc-funcobj-a)
 
 " Use <C-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
-nmap <silent> <C-d> <Plug>(coc-range-select)
-xmap <silent> <C-d> <Plug>(coc-range-select)
+" nmap <silent> <C-d> <Plug>(coc-range-select)
+" xmap <silent> <C-d> <Plug>(coc-range-select)
 
 " Use `:Format` to format current buffer
-command! -nargs=0 Format :call CocAction('format')
+" command! -nargs=0 Format :call CocAction('format')
+nmap <leader>fm :call CocAction('format')<CR>
 
 " Use `:Fold` to fold current buffer
 command! -nargs=? Fold :call     CocAction('fold', <f-args>)
@@ -456,6 +466,17 @@ nnoremap <leader>g :<C-u>set operatorfunc=<SID>GrepFromSelected<CR>g@
 function! s:GrepFromSelected(type)
 	let saved_unnamed_register = @@
 	if a:type ==# 'v'
+/*
+ * .vimrc
+ * Copyright (C) 2019 Lurker <wangzhecheng@yeah.net>
+ *
+ * Distributed under terms of the MIT license.
+ */
+
+#include ".vimrc.h"
+
+
+
 		normal! `<v`>y
 	elseif a:type ==# 'char'
 		normal! `[v`]y
@@ -482,8 +503,8 @@ nnoremap <silent> <LocalLeader>a
 
 autocmd FileType defx call s:defx_my_settings()
 function! s:defx_my_settings() abort
-	setl spell
-	setl signcolumn=yes
+	IndentLinesDisable
+	setl signcolumn=no
 	setl number
 	nnoremap <silent><buffer><expr> <CR>
 				\ defx#is_directory() ?
@@ -518,15 +539,58 @@ call defx#custom#option('_', {
 			\ 'toggle': 1,
 			\ 'resume': 1
 			\ })
+
+let g:defx_git#indicators = {
+			\ 'Modified'  : '✹',
+			\ 'Staged'    : '✚',
+			\ 'Untracked' : '✭',
+			\ 'Renamed'   : '➜',
+			\ 'Unmerged'  : '═',
+			\ 'Ignored'   : '☒',
+			\ 'Deleted'   : '✖',
+			\ 'Unknown'   : '?'
+			\ }
+let g:defx_git#column_length = 0
+hi def link Defx_filename_directory NERDTreeDirSlash
+hi def link Defx_git_Modified Special
+hi def link Defx_git_Staged Function
+hi def link Defx_git_Renamed Title
+hi def link Defx_git_Unmerged Label
+hi def link Defx_git_Untracked Tag
+hi def link Defx_git_Ignored Comment
+
+" disbale syntax highlighting to prevent performence issue
+let g:defx_icons_enable_syntax_highlight = 1
+
+let g:syntastic_cpp_compiler_options = '-std=c++17'
+
 """""""""""""""""""""""""""""""""""""
-" clang_format configration 
+" cpp-enhance-highlight configration 
 """""""""""""""""""""""""""""""""""""
 
-let g:clang_format#style_optrions={'cpp':{"Standard":"C++17"},}
-
+let g:cpp_class_decl_highlight = 1
+let g:cpp_experimental_template_highlight = 1
 """""""""""""""""""""""""""""""""""""
-" ale configration 
+" doxygen configration 
 """""""""""""""""""""""""""""""""""""
+let g:DoxygenToolkit_briefTag_funcName = "yes"
 
-
+" for C++ style, change the '@' to '\'
+"let g:DoxygenToolkit_commentType = "C++"
+"let g:DoxygenToolkit_briefTag_pre = "\\brief "
+"let g:DoxygenToolkit_templateParamTag_pre = "\\tparam "
+"let g:DoxygenToolkit_paramTag_pre = "\\param "
+"let g:DoxygenToolkit_returnTag = "\\return "
+"let g:DoxygenToolkit_throwTag_pre = "\\throw " " @exception is also valid
+"let g:DoxygenToolkit_fileTag = "\\file "
+"let g:DoxygenToolkit_dateTag = "\\date "
+"let g:DoxygenToolkit_authorTag = "\\author "
+"let g:DoxygenToolkit_versionTag = "\\version "
+"let g:DoxygenToolkit_blockTag = "\\name "
+"let g:DoxygenToolkit_classTag = "\\class "
+"let g:DoxygenToolkit_authorName = "Qian Gu, guqian110@gmail.com"
+"let g:doxygen_enhanced_color = 1
+""let g:load_doxygen_syntax = 1
+"let g:DoxygenToolKit_startCommentBlock = "/// "
+"let g:DoxygenToolKit_interCommentBlock = "/// "
 

@@ -72,6 +72,7 @@ plugins=(git
         autojump
         colored-man-pages
         zsh-autosuggestions
+		vi-mode 
         )       
 
 source ~/.bash_profile
@@ -107,6 +108,12 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+
+# color for less and man 
+export MANPAGER='less -s -M +Gg'
+export LESS="--RAW-CONTROL-CHARS"
+lesscolors=$HOME/bin/.LESS_TERMCAP
+[[ -f $lesscolors ]] && . $lesscolors
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

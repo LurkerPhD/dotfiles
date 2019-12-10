@@ -20,12 +20,12 @@ google() {
     open "http://www.google.com/search?q=$search"
 }
 
-baidu() {
+bing() {
     search=""
     for term in $@; do
         search="$search $term"
     done
-    open "http://www.baidu.com/s?wd=$search" }
+    open "http://cn.bing.com/search?q=" }
 
 neofetch
 
