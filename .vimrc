@@ -1,4 +1,4 @@
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Plug 'tpope/vim-repeat'""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " KeyBoard ShortCut Mapping
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -31,7 +31,7 @@ imap <C-j> <up>
 imap <C-k> <down>
 imap <C-l> <right>
 
-map <leader><leader> <Esc>/>anchor<<CR><leader><CR>cf<
+" map <leader><leader> <Esc>/<CR><leader><CR>cf<
 
 map <leader>pp :call CurtineIncSw()<CR>
 
@@ -83,6 +83,10 @@ syntax on
 " 状态行颜色
 highlight StatusLine guifg=SlateBlue guibg=Yellow
 highlight StatusLineNC guifg=Gray guibg=White
+
+" 编译器设置
+let g:syntastic_cpp_compiler = "g++"
+let g:syntastic_cpp_compiler_options = '-std=c++17 -Wall -Wextra -Wpedantic'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 文件设置
@@ -254,23 +258,12 @@ func! CompileRunGpp()
 	exec "! ./%<"
 endfunc
 
-" 能够漂亮地显示.NFO文件
-set encoding=utf-8
-function! SetFileEncodings(encodings)
-	    letb:myfileencodingsbak=&fileencodings
-	    let&fileencodings=a:encodings
-endfunction
-function! RestoreFileEncodings()
-	    let&fileencodings=b:myfileencodingsbak
-	    unletb:myfileencodingsbak
-endfunction
-
-au BufReadPre *.nfo call SetFileEncodings('cp437')|setambiwidth=single
+au BufReadPre *.nfo call setFileEncodings('cp437')|setambiwidth=single
 au BufReadPost *.nfo call RestoreFileEncodings() 
 
 " 用空格键来开关折叠
 set foldenable
-set foldmethod=manual
+set foldmethod=indent
 nnoremap <space>@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-Plug
@@ -311,6 +304,12 @@ Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
 Plug 'vim-scripts/DoxygenToolkit.vim' "doxygen 自动注释
 
 Plug  'ericcurtin/CurtineIncSw.vim' "switch between cpp and head file
+
+Plug 'brooth/far.vim'
+
+Plug 'tpope/vim-repeat'
+
+Plug 'terryma/vim-multiple-cursors'
 
 call plug#end()
 
@@ -396,7 +395,7 @@ nmap <leader>rn <Plug>(coc-rename)
 
 augroup mygroup
 	autocmd!
-	" Setup formatexpr specified filetype(s).
+	" setup formatexpr specified filetype(s).
 	autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
 	" Update signature help on jump placeholder
 	autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
@@ -450,15 +449,15 @@ nnoremap <silent> <space>j  :<C-u>CocNext<CR>
 " Do default action for previous item.
 nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list
-nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
+nnoremap <silent> <space>pl  :<C-u>CocListResume<CR>
 
 " grep word under cursor
 command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args> "
 
 function! s:GrepArgs(...)
-  let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
-        \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
-  return join(list, "\n")
+	let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
+				\ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
+	return join(list, "\n")
 endfunction
 
 " Keymapping for grep word under cursor with interactive mode
@@ -468,24 +467,34 @@ vnoremap <leader>g :<C-u>call <SID>GrepFromSelected(visualmode())<CR>
 nnoremap <leader>g :<C-u>set operatorfunc=<SID>GrepFromSelected<CR>g@
 
 function! s:GrepFromSelected(type)
-  let saved_unnamed_register = @@
-  if a:type ==# 'v'
-    normal! `<v`>y
-  elseif a:type ==# 'char'
-    normal! `[v`]y
-  else
-    return
-  endif
-  let word = substitute(@@, '\n$', '', 'g')
-  let word = escape(word, '| ')
-  let @@ = saved_unnamed_register
-  execute 'CocList grep '.word
+	let saved_unnamed_register = @@
+	if a:type ==# 'v'
+		normal! `<v`>y
+	elseif a:type ==# 'char'
+		normal! `[v`]y
+	else
+		return
+	endif
+	let word = substitute(@@, '\n$', '', 'g')
+	let word = escape(word, '| ')
+	let @@ = saved_unnamed_register
+	execute 'CocList grep '.word
 endfunction
 
 nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
 """""""""""""""""""""""""""""""""""""
 " defx configration 
 """""""""""""""""""""""""""""""""""""
+
+call defx#custom#option('_', {
+			\ 'winwidth': 30,
+			\ 'split': 'vertical',
+			\ 'direction': 'topleft',
+			\ 'show_ignored_files': 0,
+			\ 'buffer_name': '',
+			\ 'toggle': 1,
+			\ 'resume': 1
+			\ })
 
 " 使用 ;e 切换显示文件浏览，使用 ;a 查找到当前文件位置
 let g:maplocalleader=';'
@@ -523,16 +532,9 @@ function! s:defx_my_settings() abort
 	nnoremap <silent><buffer><expr> R defx#do_action('redraw')
 endfunction
 
-call defx#custom#option('_', {
-			\ 'winwidth': 30,
-			\ 'split': 'vertical',
-			\ 'direction': 'topleft',
-			\ 'show_ignored_files': 0,
-			\ 'buffer_name': '',
-			\ 'toggle': 1,
-			\ 'resume': 1
-			\ })
-
+"""""""""""""""""""""""""""""""""""""
+" defx git configration 
+"""""""""""""""""""""""""""""""""""""
 let g:defx_git#indicators = {
 			\ 'Modified'  : '✹',
 			\ 'Staged'    : '✚',
@@ -544,6 +546,7 @@ let g:defx_git#indicators = {
 			\ 'Unknown'   : '?'
 			\ }
 let g:defx_git#column_length = 0
+
 hi def link Defx_filename_directory NERDTreeDirSlash
 hi def link Defx_git_Modified Special
 hi def link Defx_git_Staged Function
@@ -555,7 +558,6 @@ hi def link Defx_git_Ignored Comment
 " disbale syntax highlighting to prevent performence issue
 let g:defx_icons_enable_syntax_highlight = 1
 
-let g:syntastic_cpp_compiler_options = '-std=c++17'
 """""""""""""""""""""""""""""""""""""
 " indentLine configration 
 """""""""""""""""""""""""""""""""""""
@@ -571,6 +573,7 @@ let g:cpp_experimental_template_highlight = 1
 """""""""""""""""""""""""""""""""""""
 " doxygen configration 
 """""""""""""""""""""""""""""""""""""
+
 let g:DoxygenToolkit_briefTag_funcName = "yes"
 
 " for C++ style, change the '@' to '\'
@@ -591,4 +594,25 @@ let g:DoxygenToolkit_briefTag_funcName = "yes"
 ""let g:load_doxygen_syntax = 1
 "let g:DoxygenToolKit_startCommentBlock = "/// "
 "let g:DoxygenToolKit_interCommentBlock = "/// "
+"
+" autosave delay, cursorhold trigger, default: 4000ms
+setl updatetime=300
 
+" highlight the word under cursor (CursorMoved is inperformant)
+highlight WordUnderCursor cterm=reverse gui=reverse
+autocmd CursorHold * call HighlightCursorWord()
+function! HighlightCursorWord()
+	" if hlsearch is active, don't overwrite it!
+	let search = getreg('/')
+	let cword = expand('<cword>')
+	if match(cword, search) == -1
+		exe printf('match WordUnderCursor /\V\<%s\>/', escape(cword, '/\'))
+	endif
+endfunction
+"""""""""""""""""""""""""""""""""""""
+" doxygen configration 
+"""""""""""""""""""""""""""""""""""""
+
+let g:far#file_mask_favorites= ['%', '**/*.*', '**/*.cpp **/*.h', '**/*.cpp', '**/*.h','**/*.html', '**/*.js', '**/*.css'] 
+
+let g:far#default_file_mask='**/*.h **/*.cpp'
