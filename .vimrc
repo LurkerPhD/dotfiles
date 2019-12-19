@@ -1,4 +1,4 @@
-"Plug 'tpope/vim-repeat'""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " KeyBoard ShortCut Mapping
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -84,10 +84,23 @@ syntax on
 highlight StatusLine guifg=SlateBlue guibg=Yellow
 highlight StatusLineNC guifg=Gray guibg=White
 
-" 编译器设置
-let g:syntastic_cpp_compiler = "g++"
+" cpp编译器设置
+let g:syntastic_cpp_compiler = "clang++"
 let g:syntastic_cpp_compiler_options = '-std=c++17 -Wall -Wextra -Wpedantic'
 
+" " highlight the word under cursor (CursorMoved is inperformant)
+" highlight WordUnderCursor cterm=reverse gui=reverse
+" autocmd CursorHold * call HighlightCursorWord()
+" function! HighlightCursorWord()
+" 	" if hlsearch is active, don't overwrite it!
+" 	let search = getreg('/')
+" 	let cword = expand('<cword>')
+" 	if match(cword, search) == -1
+" 		exe printf('match WordUnderCursor /\V\<%s\>/', escape(cword, '/\'))
+" 	endif
+" endfunction
+" " autosave delay, cursorhold trigger, default: 4000ms
+" setl updatetime=300
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 文件设置
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -311,6 +324,10 @@ Plug 'tpope/vim-repeat'
 
 Plug 'terryma/vim-multiple-cursors'
 
+Plug 'tpope/vim-fugitive'
+
+Plug 'sillybun/vim-repl'
+
 call plug#end()
 
 """""""""""""""""""""""""""""""""""""
@@ -478,10 +495,13 @@ function! s:GrepFromSelected(type)
 	let word = substitute(@@, '\n$', '', 'g')
 	let word = escape(word, '| ')
 	let @@ = saved_unnamed_register
-	execute 'CocList grep '.word
+	execute 'CocList -A --tab --normal grep '.word
 endfunction
 
-nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
+" nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
+
+" popup
+nmap <Leader>tl <Plug>(coc-translator-p)
 """""""""""""""""""""""""""""""""""""
 " defx configration 
 """""""""""""""""""""""""""""""""""""
@@ -505,7 +525,7 @@ nnoremap <silent> <LocalLeader>a
 
 autocmd FileType defx call s:defx_my_settings()
 function! s:defx_my_settings() abort
-	IndentLinesDisable
+	" IndentLinesDisable
 	setl signcolumn=no
 	setl number
 	nnoremap <silent><buffer><expr> <CR>
@@ -533,6 +553,21 @@ function! s:defx_my_settings() abort
 endfunction
 
 """""""""""""""""""""""""""""""""""""
+" defx icons configration 
+"""""""""""""""""""""""""""""""""""""
+
+let g:defx_icons_enable_syntax_highlight = 1
+let g:defx_icons_column_length = 1
+let g:defx_icons_directory_icon = ''
+let g:defx_icons_mark_icon = '*'
+let g:defx_icons_parent_icon = ''
+let g:defx_icons_default_icon = ''
+let g:defx_icons_directory_symlink_icon = ''
+" Options below are applicable only when using "tree" feature
+let g:defx_icons_root_opened_tree_icon = ''
+let g:defx_icons_nested_opened_tree_icon = ''
+let g:defx_icons_nested_closed_tree_icon = ''
+"""""""""""""""""""""""""""""""""""""
 " defx git configration 
 """""""""""""""""""""""""""""""""""""
 let g:defx_git#indicators = {
@@ -554,16 +589,11 @@ hi def link Defx_git_Renamed Title
 hi def link Defx_git_Unmerged Label
 hi def link Defx_git_Untracked Tag
 hi def link Defx_git_Ignored Comment
-
-" disbale syntax highlighting to prevent performence issue
-let g:defx_icons_enable_syntax_highlight = 1
-
 """""""""""""""""""""""""""""""""""""
 " indentLine configration 
 """""""""""""""""""""""""""""""""""""
 
 let g:indentLine_setColors = 0
-
 """""""""""""""""""""""""""""""""""""
 " cpp-enhance-highlight configration 
 """""""""""""""""""""""""""""""""""""
@@ -595,20 +625,6 @@ let g:DoxygenToolkit_briefTag_funcName = "yes"
 "let g:DoxygenToolKit_startCommentBlock = "/// "
 "let g:DoxygenToolKit_interCommentBlock = "/// "
 "
-" autosave delay, cursorhold trigger, default: 4000ms
-setl updatetime=300
-
-" highlight the word under cursor (CursorMoved is inperformant)
-highlight WordUnderCursor cterm=reverse gui=reverse
-autocmd CursorHold * call HighlightCursorWord()
-function! HighlightCursorWord()
-	" if hlsearch is active, don't overwrite it!
-	let search = getreg('/')
-	let cword = expand('<cword>')
-	if match(cword, search) == -1
-		exe printf('match WordUnderCursor /\V\<%s\>/', escape(cword, '/\'))
-	endif
-endfunction
 """""""""""""""""""""""""""""""""""""
 " doxygen configration 
 """""""""""""""""""""""""""""""""""""
@@ -616,3 +632,36 @@ endfunction
 let g:far#file_mask_favorites= ['%', '**/*.*', '**/*.cpp **/*.h', '**/*.cpp', '**/*.h','**/*.html', '**/*.js', '**/*.css'] 
 
 let g:far#default_file_mask='**/*.h **/*.cpp'
+"""""""""""""""""""""""""""""""""""""
+" vim repl configration 
+"""""""""""""""""""""""""""""""""""""
+
+let g:repl_program = {
+            \   'python': 'ipython',
+            \   'default': 'zsh',
+            \   'r': 'R',
+            \   'lua': 'lua',
+            \   }
+let g:repl_predefine_python = {
+            \   'numpy': 'import numpy as np',
+            \   'matplotlib': 'from matplotlib import pyplot as plt'
+            \   }
+let g:repl_cursor_down = 1
+let g:repl_python_automerge = 1
+let g:repl_ipython_version = '7'
+nnoremap <leader>r :REPLToggle<Cr>
+autocmd Filetype python nnoremap <F12> <Esc>:REPLDebugStopAtCurrentLine<Cr>
+autocmd Filetype python nnoremap <F10> <Esc>:REPLPDBN<Cr>
+autocmd Filetype python nnoremap <F11> <Esc>:REPLPDBS<Cr>
+let g:repl_position = 3
+
+" let g:repl_width = None                           "窗口宽度
+" let g:repl_height = None                          "窗口高度
+" let g:sendtorepl_invoke_key = "<leader>w"          "传送代码快捷键，默认为<leader>w
+" let g:repl_position = 0                             "0表示出现在下方，1表示出现在上方，2在左边，3在右边
+" let g:repl_stayatrepl_when_open = 0         "打开REPL时是回到原文件（1）还是停留在REPL窗口中（0）
+" tnoremap <C-h> <C-w><C-h>
+" tnoremap <C-j> <C-w><C-j>
+" tnoremap <C-k> <C-w><C-k>
+" tnoremap <C-l> <C-w><C-l>
+
