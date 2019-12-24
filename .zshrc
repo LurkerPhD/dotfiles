@@ -69,17 +69,17 @@ ZSH_THEME="ys"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git
-        autojump
-        colored-man-pages
-        zsh-autosuggestions
-		vi-mode 
-        )       
+	autojump
+	colored-man-pages
+	zsh-autosuggestions
+	# vi-mode 
+	)       
 
-source ~/.bash_profile
+	source ~/.bash_profile
 
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+	source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-source $ZSH/oh-my-zsh.sh
+	source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
@@ -121,3 +121,4 @@ lesscolors=$HOME/bin/.LESS_TERMCAP
 export PATH="$PATH:$HOME/.rvm/bin"
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 export PATH="/usr/local/opt/llvm/bin:$PATH"
+export PATH="/usr/local/texlive/2019/bin/x86_64-darwin:$PATH"

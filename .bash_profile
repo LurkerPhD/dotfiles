@@ -13,19 +13,20 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
 google() {
-    search=""
-    for term in $@; do
-        search="$search%20$term"
-    done
-    open "http://www.google.com/search?q=$search"
+	search=""
+	for term in $@; do
+		search="$search%20$term"
+	done
+	open "http://www.google.com/search?q=$search"
 }
 
 bing() {
-    search=""
-    for term in $@; do
-        search="$search $term"
-    done
-    open "http://cn.bing.com/search?q=" }
+	search=""
+	for term in $@; do
+		search="$search $term"
+	done
+	open "http://cn.bing.com/search?q=" 
+}
 
 neofetch
 
@@ -40,3 +41,18 @@ export C_INCLUDE_PATH
 CPLUS_INCLUDE_PATH=/usr/local/include/
 export CPLUS_INCLUDE_PATH
 export LIBRARY_PATH=/usr/local/lib/
+
+debug(){
+	mkdir build
+	cd build
+	cmake -DCMAKE_BUILD_TYPE=Debug ..
+	make $@
+	cd ..
+}
+release(){
+	mkdir build
+	cd build
+	cmake -DCMAKE_BUILD_TYPE=Release ..
+	make $@
+	cd ..
+}
