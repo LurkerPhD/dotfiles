@@ -1,9 +1,10 @@
 cp ~/.bash_profile .
 cp ~/.zshrc .
 cp ~/.vimrc .
-# mkdir .vim
+mkdir .vim
 cp ~/.vim/coc-settings.json .vim/coc-settings.json
-# mkdir .config
+mkdir .config
+mkdir .config/coc
 cp -r ~/.config/alacritty .config/alacritty
 cp -r ~/.config/coc/ultisnips .config/coc/ultisnips
 
