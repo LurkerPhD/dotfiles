@@ -1,4 +1,4 @@
-" Neo/vim Settings
+  " /vim Settings
 " ===
 " General{{{
 "
@@ -187,6 +187,35 @@ elseif executable('ag')
 	let &grepprg = 'ag --vimgrep' . (&smartcase ? ' --smart-case' : '')
 endif
 
+" 替换函数。参数说明：
+" confirm：是否替换前逐一确认
+" wholeword：是否整词匹配
+" replace：被替换字符串
+function! Replace(confirm, wholeword, replace)
+    let flag = ''
+    if a:confirm
+        let flag .= 'gec'
+    else
+        let flag .= 'ge'
+    endif
+    let search = ''
+    if a:wholeword
+        let search .= '\<' . escape(expand('<cword>'), '/\.*$^~[') . '\>'
+    else
+        let search .= expand('<cword>')
+    endif
+    let replace = escape(a:replace, '/\&~')
+    execute 'argdo %s/' . search . '/' . replace . '/' . flag . '| update'
+endfunction
+" 不确认、非整词
+nnoremap <Leader>R :call Replace(0, 0, input('Replace '.expand('<cword>').' with: '))<CR>
+" 不确认、整词
+nnoremap <Leader>rw :call Replace(0, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+" 确认、非整词
+nnoremap <Leader>rc :call Replace(1, 0, input('Replace '.expand('<cword>').' with: '))<CR>
+" 确认、整词
+nnoremap <Leader>rcw :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+nnoremap <Leader>rwc :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
 " }}}
 " Behavior {{{
 " --------
@@ -224,11 +253,11 @@ set sidescrolloff=5       " Keep at least 5 lines left/right
 " set noruler             " Disable default status ruler
 set ruler                       " show the current row and column
 set number relativenumber
-augroup numbertoggle
-	autocmd!
-	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
-	" autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
-augroup END
+" augroup numbertoggle
+" 	autocmd!
+" 	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+" 	autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
+" augroup END
 set list                " Show hidden characters
 
 set showtabline=2       " Always show the tabs line
@@ -286,6 +315,52 @@ if exists('&winblend')
 endif
 
 " }}}
+"auto implementation in cpp file{{{
+" nmap <leader>PC :CopyDefinition<CR>
+" nmap <leader>PP :ImplementDefinition<CR>
+" command! CopyDefinition :call s:GetDefinitionInfo()
+" command! ImplementDefinition :call s:ImplementDefinition()
+" function! s:GetDefinitionInfo()
+"   exe 'normal ma'
+"   " Get class
+"   call search('^\s*\<class\>', 'b')
+"   exe 'normal ^w"ayw'
+"   let s:class = @a
+"   let l:ns = search('^\s*\<namespace\>', 'b')
+"   " Get namespace
+"   if l:ns != 0
+"     exe 'normal ^w"ayw'
+"     let s:namespace = @a
+"   else
+"     let s:namespace = ''
+"   endif
+"   " Go back to definition
+"   exe 'normal `a'
+"   exe 'normal "aY'
+"   let s:defline = substitute(@a, ';\n', '', '')
+" endfunction
+ 
+" function! s:ImplementDefinition()
+"   call append('.', s:defline)
+"   exe 'normal j'
+"   " Remove keywords
+"   s/\<virtual\>\s*//e
+"   s/\<static\>\s*//e
+"   if s:namespace == ''
+"     let l:classString = s:class . "::"
+"   else
+"     let l:classString = s:namespace . "::" . s:class . "::"
+"   endif
+"   " Remove default parameters
+"   s/\s\{-}=\s\{-}[^,)]\{1,}//e
+"   " Add class qualifier
+"   exe 'normal ^f(bi' . l:classString
+"   " Add brackets
+"   exe "normal $o{\<CR>\<TAB>\<CR>}\<CR>\<ESC>kkkk"
+"   " Fix indentation
+"   exe 'normal =4j^'
+" endfunction
+"}}}
 
 " key-mappings
 " ===
@@ -374,7 +449,6 @@ imap <C-l> <right>
 
 " map <leader><leader> <Esc>/<CR><leader><CR>cf<
 
-map <leader>pp :call CurtineIncSw()<CR>
 
 " Select blocks after indenting
 " xnoremap < <gv
@@ -513,14 +587,14 @@ function! s:append_modeline() "{{{
 endfunction "}}}
 
 " }}}
-
-
+"cmake in one key{{{
+nmap <Leader>run :wa<CR>:cmake CMakeLists.txt<CR>:make<CR><CR>:cw<CR>
+"}}}
 " Plugins
 " ===
 " vim-Plug{{{
 " 
 call plug#begin('~/.vim/plugged')
-
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 Plug 'jackguo380/vim-lsp-cxx-highlight'
@@ -542,6 +616,8 @@ Plug 'morhetz/gruvbox'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
+Plug 'junegunn/vim-easy-align'
+
 Plug 'Yggdroot/indentLine'
 
 Plug 'tpope/vim-surround'
@@ -551,7 +627,7 @@ Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
 
 Plug 'vim-scripts/DoxygenToolkit.vim' "doxygen 自动注释
 
-Plug  'ericcurtin/CurtineIncSw.vim' "switch between cpp and head file
+Plug 'brooth/far.vim'
 
 Plug 'tpope/vim-repeat'
 
@@ -559,15 +635,16 @@ Plug 'terryma/vim-multiple-cursors'
 
 Plug 'neoclide/vim-easygit'
 
-Plug 'sillybun/vim-repl'
+" Plug 'sillybun/vim-repl'
 
-Plug 'gilligan/vim-lldb'
+" Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install_sync() } ,'for':['markdown','vim-plug']}
 
-Plug 'iamcco/mathjax-support-for-mkdp',{'do':{->mkdp#util#install()},'for':['markdown']}
-Plug 'iamcco/markdown-preview.vim', {'for':['markdown']}
+Plug 'skywind3000/vim-quickui'
 
-Plug 'lervag/vimtex' ", {'for':['latex']}
+Plug 'derekwyatt/vim-fswitch'
+Plug 'derekwyatt/vim-protodef'
 
+Plug 'majutsushi/tagbar'
 call plug#end()
 
 "}}}
@@ -610,6 +687,7 @@ set signcolumn=yes
 " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
 inoremap <silent><expr> <TAB>
 			\ pumvisible() ? "\<C-n>" :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
 			\ <SID>check_back_space() ? "\<TAB>" :
 			\ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
@@ -723,7 +801,7 @@ function! s:GrepArgs(...)
 endfunction
 
 " Keymapping for grep word under cursor with interactive mode
-nnoremap <silent> <Leader>cf :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
+nnoremap <silent> <Leader>cf :exe 'CocList -I -A --input='.expand('<cword>').' grep'<CR>
 
 vnoremap <leader>g :<C-u>call <SID>GrepFromSelected(visualmode())<CR>
 nnoremap <leader>g :<C-u>set operatorfunc=<SID>GrepFromSelected<CR>g@
@@ -753,35 +831,6 @@ nmap gs <Plug>(coc-git-chunkinfo)
 " nmap ]g <Plug>(coc-git-nextchunk)
 " show commit contains current position
 nmap gC <Plug>(coc-git-commit)
-
-
-" Use <C-l> for trigger snippet expand.
-" imap <C-l> <Plug>(coc-snippets-expand)
-
-" Use <C-j> for select text for visual placeholder of snippet.
-" vmap <C-j> <Plug>(coc-snippets-select)
-
-" Use <C-j> for jump to next placeholder, it's default of coc.nvim
-" let g:coc_snippet_next = '<c-j>'
-
-" Use <C-k> for jump to previous placeholder, it's default of coc.nvim
-" let g:coc_snippet_prev = '<c-k>'
-
-" Use <C-j> for both expand and jump (make expand higher priority.)
-" imap <C-j> <Plug>(coc-snippets-expand-jump)
-" inoremap <silent><expr> <TAB>
-"       \ pumvisible() ? coc#_select_confirm() :
-"       \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-"       \ <SID>check_back_space() ? "\<TAB>" :
-"       \ coc#refresh()
-
-" function! s:check_back_space() abort
-"   let col = col('.') - 1
-"   return !col || getline('.')[col - 1]  =~# '\s'
-" endfunction
-
-" let g:coc_snippet_next = '<tab>'
-
 "}}}
 " defx configration {{{
 
@@ -966,10 +1015,10 @@ function! s:defx_mappings() abort
 				\ defx#do_action('toggle_columns', 'indent:mark:filename:type:size:time')
 
 	" Tools
-	nnoremap <silent><buffer><expr> w defx#do_action('call', '<SID>toggle_width')
-	nnoremap <silent><buffer><expr> gd defx#async_action('multi', ['drop', ['call', '<SID>git_diff']])
+	nnoremap <silent><buffer><expr> w   defx#do_action('call', '<SID>toggle_width')
+	nnoremap <silent><buffer><expr> gd  defx#async_action('multi', ['drop', ['call', '<SID>git_diff']])
 	if exists('$TMUX')
-		nnoremap <silent><buffer><expr> gl defx#async_action('call', '<SID>explorer')
+		nnoremap <silent><buffer><expr> gl  defx#async_action('call', '<SID>explorer')
 	endif
 endfunction
 
@@ -1077,31 +1126,28 @@ hi def link Defx_git_Ignored Comment
 
 let g:indentLine_setColors = 0
 "}}}
-" cpp-enhance-highlight configration {{{
-
-let g:cpp_class_decl_highlight = 1
-let g:cpp_experimental_template_highlight = 1
-"}}}
 " doxygen configration {{{
+
+nnoremap dox <Esc>:Dox<Cr>
 
 let g:DoxygenToolkit_briefTag_funcName = "yes"
 
 " for C++ style, change the '@' to '\'
-" let g:DoxygenToolkit_commentType = "C++"
-" let g:DoxygenToolkit_briefTag_pre = "\@brief "
-" let g:DoxygenToolkit_templateParamTag_pre = "\@tparam "
-" let g:DoxygenToolkit_paramTag_pre = "\@param "
-" let g:DoxygenToolkit_returnTag = "\@return "
-" let g:DoxygenToolkit_throwTag_pre = "\@throw " " @exception is also valid
-" let g:DoxygenToolkit_fileTag = "\@file "
-" let g:DoxygenToolkit_dateTag = "\@date "
-" let g:DoxygenToolkit_authorTag = "\@author "
-" let g:DoxygenToolkit_versionTag = "\@version "
-" let g:DoxygenToolkit_blockTag = "\@name "
-" let g:DoxygenToolkit_classTag = "\@class "
-let g:DoxygenToolkit_authorName = "Wang Zhecheng, wangzhecheng@yeah.net"
-" let g:doxygen_enhanced_color = 1
-" let g:load_doxygen_syntax = 1
+"let g:DoxygenToolkit_commentType = "C++"
+"let g:DoxygenToolkit_briefTag_pre = "\\brief "
+"let g:DoxygenToolkit_templateParamTag_pre = "\\tparam "
+"let g:DoxygenToolkit_paramTag_pre = "\\param "
+"let g:DoxygenToolkit_returnTag = "\\return "
+"let g:DoxygenToolkit_throwTag_pre = "\\throw " " @exception is also valid
+"let g:DoxygenToolkit_fileTag = "\\file "
+"let g:DoxygenToolkit_dateTag = "\\date "
+"let g:DoxygenToolkit_authorTag = "\\author "
+"let g:DoxygenToolkit_versionTag = "\\version "
+"let g:DoxygenToolkit_blockTag = "\\name "
+"let g:DoxygenToolkit_classTag = "\\class "
+"let g:DoxygenToolkit_authorName = "Qian Gu, guqian110@gmail.com"
+"let g:doxygen_enhanced_color = 1
+""let g:load_doxygen_syntax = 1
 "let g:DoxygenToolKit_startCommentBlock = "/// "
 "let g:DoxygenToolKit_interCommentBlock = "/// "
 "}}}
@@ -1163,102 +1209,257 @@ let g:repl_position = 3
 " let s:stl .= '%4*%*%( %{&ft} %)'                 " File type
 " let s:stl .= '%3*%2* %l/%2c%4p%% '               " Line and column
 
-" " Non-active Statusline
+" Non-active Statusline
 " let s:stl_nc = " %{badge#mode('⚠ ', 'Z')}%n"   " Readonly & buffer
 " let s:stl_nc .= "%6*%{badge#modified('+')}%*"  " Write symbol
 " let s:stl_nc .= ' %{badge#filename()}'         " Relative supername
 " let s:stl_nc .= '%='                           " Align to right
 " let s:stl_nc .= '%{&ft} '                      " File type
 
-" " Status-line blacklist
+" Status-line blacklist
 " let s:disable_statusline =
 "   \ 'denite\|vista\|tagbar\|undotree\|diff\|peekaboo\|sidemenu'
 
 " function! s:refresh()
 "   if &filetype ==# 'defx'
-"     let &l:statusline = '%y %<%=%{badge#filename()}%= %l/%L'
-"   elseif &filetype ==# 'magit'
-"     let &l:statusline = '%y %{badge#gitstatus()}%<%=%{badge#filename()}%= %l/%L'
-"   elseif &filetype !~# s:disable_statusline
-"     let &l:statusline = s:stl
-"   endif
+    " let &l:statusline = '%y %<%=%{badge#filename()}%= %l/%L'
+  " elseif &filetype ==# 'magit'
+    " let &l:statusline = '%y %{badge#gitstatus()}%<%=%{badge#filename()}%= %l/%L'
+  " elseif &filetype !~# s:disable_statusline
+  "   let &l:statusline = s:stl
+  " endif
 " endfunction
 
 " function! s:refresh_inactive()
-"   if &filetype ==# 'defx'
-"     let &l:statusline = '%y %= %l/%L'
-"   elseif &filetype ==# 'magit'
-"     let &l:statusline = '%y %{badge#gitstatus()}%= %l/%L'
-"   elseif &filetype !~# s:disable_statusline
-"     let &l:statusline = s:stl_nc
-"   endif
+  " if &filetype ==# 'defx'
+  "   let &l:statusline = '%y %= %l/%L'
+  " elseif &filetype ==# 'magit'
+    " let &l:statusline = '%y %{badge#gitstatus()}%= %l/%L'
+  " elseif &filetype !~# s:disable_statusline
+  "   let &l:statusline = s:stl_nc
+  " endif
 " endfunction
 
 " augroup user_statusline
-"   autocmd!
+  " autocmd!
 
-"   autocmd FileType,WinEnter,BufWinEnter,BufReadPost * call s:refresh()
-"   autocmd WinLeave * call s:refresh_inactive()
-"   autocmd BufNewFile,ShellCmdPost,BufWritePost * call s:refresh()
-"   autocmd FileChangedShellPost,ColorScheme * call s:refresh()
-"   " autocmd FileReadPre,ShellCmdPost,FileWritePost * call s:refresh()
-"   autocmd User CocStatusChange,CocGitStatusChange call s:refresh()
-"   autocmd User CocDiagnosticChange call s:refresh()
-"   autocmd User GutentagsUpdating call s:refresh()
+  " autocmd FileType,WinEnter,BufWinEnter,BufReadPost * call s:refresh()
+  " autocmd WinLeave * call s:refresh_inactive()
+  " autocmd BufNewFile,ShellCmdPost,BufWritePost * call s:refresh()
+  " autocmd FileChangedShellPost,ColorScheme * call s:refresh()
+  " autocmd FileReadPre,ShellCmdPost,FileWritePost * call s:refresh()
+  " autocmd User CocStatusChange,CocGitStatusChange call s:refresh()
+  " autocmd User CocDiagnosticChange call s:refresh()
+  " autocmd User GutentagsUpdating call s:refresh()
 " augroup END
 "}}}
 " easy git configuration{{{
 let g:easygit_enable_command = 1
 "}}}
 " markdown preview configuration{{{
-let g:mkdp_path_to_chrome = "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome"
-
-" 设置 chrome 浏览器的路径（或是启动 chrome（或其他现代浏览器）的命令）
-" 如果设置了该参数, g:mkdp_browserfunc 将被忽略
-
-let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
-" vim 回调函数, 参数为要打开的 url
-
+" set to 1, nvim will open the preview window after entering the markdown buffer
+" default: 0
 let g:mkdp_auto_start = 0
-" 设置为 1 可以在打开 markdown 文件的时候自动打开浏览器预览，只在打开
-" markdown 文件的时候打开一次
 
-let g:mkdp_auto_open = 0
-" 设置为 1 在编辑 markdown 的时候检查预览窗口是否已经打开，否则自动打开预
-" 览窗口
-
+" set to 1, the nvim will auto close current preview window when change
+" from markdown buffer to another buffer
+" default: 1
 let g:mkdp_auto_close = 1
-" 在切换 buffer 的时候自动关闭预览窗口，设置为 0 则在切换 buffer 的时候不
-" 自动关闭预览窗口
 
+" set to 1, the vim will refresh markdown when save the buffer or
+" leave from insert mode, default 0 is auto refresh markdown as you edit or
+" move the cursor
+" default: 0
 let g:mkdp_refresh_slow = 0
-" 设置为 1 则只有在保存文件，或退出插入模式的时候更新预览，默认为 0，实时
-" 更新预览
 
+" set to 1, the MarkdownPreview command can be use for all files,
+" by default it can be use in markdown file
+" default: 0
 let g:mkdp_command_for_global = 0
-" 设置为 1 则所有文件都可以使用 MarkdownPreview 进行预览，默认只有 markdown
-" 文件可以使用改命令
 
+" set to 1, preview server available to others in your network
+" by default, the server listens on localhost (127.0.0.1)
+" default: 0
 let g:mkdp_open_to_the_world = 0
-" 设置为 1, 在使用的网络中的其他计算机也能访问预览页面
-" 默认只监听本地（127.0.0.1），其他计算机不能访问
+
+" use custom IP to open preview page
+" useful when you work in remote vim and preview on local browser
+" more detail see: https://github.com/iamcco/markdown-preview.nvim/pull/9
+" default empty
+let g:mkdp_open_ip = ''
+
+" specify browser to open preview page
+" default: ''
+let g:mkdp_browser = ''
+
+" set to 1, echo preview page url in command line when open preview page
+" default is 0
+let g:mkdp_echo_preview_url = 0
+
+" a custom vim function name to open preview page
+" this function will receive url as param
+" default is empty
+let g:mkdp_browserfunc = ''
+
+" options for markdown render
+" mkit: markdown-it options for render
+" katex: katex options for math
+" uml: markdown-it-plantuml options
+" maid: mermaid options
+" disable_sync_scroll: if disable sync scroll, default 0
+" sync_scroll_type: 'middle', 'top' or 'relative', default value is 'middle'
+"   middle: mean the cursor position alway show at the middle of the preview page
+"   top: mean the vim top viewport alway show at the top of the preview page
+"   relative: mean the cursor position alway show at the relative positon of the preview page
+" hide_yaml_meta: if hide yaml metadata, default is 1
+" sequence_diagrams: js-sequence-diagrams options
+let g:mkdp_preview_options = {
+			\ 'mkit': {},
+			\ 'katex': {},
+			\ 'uml': {},
+			\ 'maid': {},
+			\ 'disable_sync_scroll': 0,
+			\ 'sync_scroll_type': 'middle',
+			\ 'hide_yaml_meta': 1,
+			\ 'sequence_diagrams': {}
+			\ }
+
+" use a custom markdown style must be absolute path
+let g:mkdp_markdown_css = ''
+
+" use a custom highlight style must absolute path
+let g:mkdp_highlight_css = ''
+
+" use a custom port to start server or random for empty
+let g:mkdp_port = ''
+
+" preview page title
+" ${name} will be replace with the file name
+let g:mkdp_page_title = '「${name}」'
+
+
+autocmd FileType markdown inoremap <leader>
 " }}}
-" vim-latex configuration{{{
-let g:tex_flavor='latex'
+"quick gui configuration{{{
 
-if empty(v:servername) && exists('*remote_startserver')
-	call remote_startserver('VIM')
-endif
+" clear all the menus
+call quickui#menu#reset()
 
-let g:vimtex_compiler_method='latexmk'
-let g:vimtex_view_method='zathura'
-let g:vimtex_quickfix_mode=0
-let g:vimtex_view_use_temp_files=1
-set conceallevel=1
-let g:tex_conceal='abdmg'
+" install a 'File' menu, use [text, command] to represent an item.
+call quickui#menu#install('&File', [
+            \ [ "&Close", 'close' ],
+            \ [ "--", '' ],
+            \ [ "&Save\tw!", 'w!'],
+            \ [ "Save &All\tq!", 'wa!' ],
+            \ [ "--", '' ],
+            \ [ "E&xit\tAlt+x", 'q!' ],
+            \ ])
 
-" }}}
+" install a 'File' menu, use [text, command] to represent an item.
+call quickui#menu#install('Fol&d', [
+            \ [ "&marker fold", 'se fdm=marker' ],
+            \ [ "&syntax fold", 'se fdm=syntax' ],
+            \ [ "&indent fold", 'se fdm=indent' ],
+            \ ])
+" items containing tips, tips will display in the cmdline
+call quickui#menu#install('&Git', [
+            \ [ 'git &status', 'CocList gstatus' ],
+            \ [ 'git &diff', 'GdiffThis' ],
+            \ [ 'git &chunkinfo', 'CocCommand git.chunkInfo' ],
+            \ [ 'git &toggleGutters', 'CocCommand git.toggleGutters' ],
+            \ ])
 
+" script inside %{...} will be evaluated and expanded in the string
+call quickui#menu#install("&List", [
+            \ [ "list &buffers", 'CocList buffers' ],
+						\ ['list &functions', 'echo 0'],
+						\ ['list &yanks', 'CocList yanks'],
+            \ ])
+
+" script inside %{...} will be evaluated and expanded in the string
+call quickui#menu#install("&Option", [
+			\ ['Show &function list', 'TagbarToggle'],
+			\ ['Set &Spell %{&spell? "Off":"On"}', 'set spell!'],
+			\ ['Set &Cursor Line %{&cursorline? "Off":"On"}', 'set cursorlie!'],
+			\ ['Set &Paste %{&paste? "Off":"On"}', 'set paste!'],
+            \ ], '<auto>','c,cpp')
+
+" enable to display tips in the cmdline
+let g:quickui_show_tip = 1
+
+" hit space twice to open menu
+noremap <leader>mn :call quickui#menu#open()<cr>
+
+"}}}
+"switch between cpp and h{{{
+" map <leader>pp :call CurtineIncSw()<CR>
+ " - Switch to the file and load it into the current window >
+	nmap <silent> <Leader>pp :FSHere<cr>
+" < - Switch to the file and load it into the window on the right >
+	nmap <silent> <Leader>Pl :FSRight<cr>
+" < - Switch to the file and load it into a new window split on the right >
+	nmap <silent> <Leader>PL :FSSplitRight<cr>
+" < - Switch to the file and load it into the window on the left >
+	nmap <silent> <Leader>Ph :FSLeft<cr>
+" < - Switch to the file and load it into a new window split on the left >
+	nmap <silent> <Leader>PH :FSSplitLeft<cr>
+" < - Switch to the file and load it into the window above >
+	nmap <silent> <Leader>Pk :FSAbove<cr>
+" < - Switch to the file and load it into a new window split above >
+	nmap <silent> <Leader>PK :FSSplitAbove<cr>
+" < - Switch to the file and load it into the window below >
+	nmap <silent> <Leader>Pj :FSBelow<cr>
+" < - Switch to the file and load it into a new window split below >
+	nmap <silent> <Leader>PJ :FSSplitBelow<cr>
+
+"}}}
+"tagbar configuration{{{
+" 设置 tagbar 子窗口的位置出现在主编辑区的左边 
+let tagbar_left=1 
+" 设置显示／隐藏标签列表子窗口的快捷键。速记：identifier list by tag
+nnoremap <Leader>ilt :TagbarToggle<CR> 
+" 设置标签子窗口的宽度 
+let tagbar_width=32 
+" tagbar 子窗口中不显示冗余帮助信息 
+let g:tagbar_compact=1
+" 设置 ctags 对哪些代码标识符生成标签
+let g:tagbar_type_cpp = {
+    \ 'kinds' : [
+         \ 'c:classes:0:1',
+         \ 'd:macros:0:1',
+         \ 'e:enumerators:0:0', 
+         \ 'f:functions:0:1',
+         \ 'g:enumeration:0:1',
+         \ 'l:local:0:1',
+         \ 'm:members:0:1',
+         \ 'n:namespaces:0:1',
+         \ 'p:functions_prototypes:0:1',
+         \ 's:structs:0:1',
+         \ 't:typedefs:0:1',
+         \ 'u:unions:0:1',
+         \ 'v:global:0:1',
+         \ 'x:external:0:1'
+     \ ],
+     \ 'sro'        : '::',
+     \ 'kind2scope' : {
+         \ 'g' : 'enum',
+         \ 'n' : 'namespace',
+         \ 'c' : 'class',
+         \ 's' : 'struct',
+         \ 'u' : 'union'
+     \ },
+     \ 'scope2kind' : {
+         \ 'enum'      : 'g',
+         \ 'namespace' : 'n',
+         \ 'class'     : 'c',
+         \ 'struct'    : 's',
+         \ 'union'     : 'u'
+     \ }
+\ }
+"}}}
+
+" vim-badge 
+" ===
 " vim-badge - Bite-size badges for tab & status lines{{{
 " Maintainer: Rafael Bodill <justrafi at gmail dot com>
 "-------------------------------------------------
@@ -1303,7 +1504,7 @@ let g:tex_conceal='abdmg'
 "augroup statusline_cache
 "	autocmd!
 "	autocmd BufWritePre,WinEnter,BufReadPost * call badge#clear_cache()
-"	autocmd User NeomakeJobFinished call badge#clear_cache()
+"	autocmd User makeJobFinished call badge#clear_cache()
 "	autocmd User CocDiagnosticChange call badge#clear_cache()
 "	autocmd User CocStatusChange call badge#clear_cache()
 "augroup END
@@ -1475,7 +1676,7 @@ let g:tex_conceal='abdmg'
 "endfunction
 
 "function! badge#syntax() abort
-"	" Returns syntax warnings from several plugins (Neomake and syntastic)
+"	" Returns syntax warnings from several plugins (make and syntastic)
 
 "	if &filetype =~? g:badge_filetype_blacklist
 "		return ''
