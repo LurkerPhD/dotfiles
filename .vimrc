@@ -1,4 +1,77 @@
-  " /vim Settings
+" Plugins
+" ===
+" vim-Plug{{{
+" 
+call plug#begin('~/.vim/plugged')
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+
+Plug 'jackguo380/vim-lsp-cxx-highlight'
+
+if has('nvim')
+	Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
+	Plug 'kristijanhusak/defx-icons'
+else
+	Plug 'Shougo/defx.nvim'
+	Plug 'roxma/nvim-yarp'
+	Plug 'roxma/vim-hug-neovim-rpc'
+endif
+Plug 'kristijanhusak/defx-git'
+
+"Plug 'dracula/vim', { 'as': 'dracula' }
+" Plug 'w0ng/vim-hybrid'
+Plug 'morhetz/gruvbox'
+
+" Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline-themes'
+
+Plug 'junegunn/vim-easy-align'
+
+Plug 'Yggdroot/indentLine'
+
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+
+Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
+
+Plug 'vim-scripts/DoxygenToolkit.vim' "doxygen 自动注释
+
+Plug 'brooth/far.vim'
+
+Plug 'tpope/vim-repeat'
+
+Plug 'terryma/vim-multiple-cursors'
+
+Plug 'neoclide/vim-easygit'
+
+" Plug 'sillybun/vim-repl'
+
+" Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install_sync() } ,'for':['markdown','vim-plug']}
+
+Plug 'skywind3000/vim-quickui'
+
+Plug 'derekwyatt/vim-fswitch'
+Plug 'derekwyatt/vim-protodef'
+
+Plug 'majutsushi/tagbar'
+
+Plug 'tpope/vim-fugitive'
+
+Plug 'dbgx/lldb.nvim'
+
+Plug 'vhdirk/vim-cmake'
+" Plug 'jalcine/cmake.vim'
+" Plug 'ilyachur/cmake4vim'
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+" Plug 'junegunn/fzf.vim'
+
+Plug 'tpope/vim-dispatch'
+
+call plug#end()
+
+"}}}
+
+" general Settings
 " ===
 " General{{{
 "
@@ -36,6 +109,7 @@ set virtualedit=block        " Position cursor anywhere in visual block
 set synmaxcol=1000           " Don't syntax highlight long lines
 set formatoptions+=1         " Don't break lines after a one-letter word
 set formatoptions-=t         " Don't auto-wrap text
+set cursorline
 if has('patch-7.3.541')
 	set formatoptions+=j       " Remove comment leader when joining lines
 endif
@@ -192,20 +266,21 @@ endif
 " wholeword：是否整词匹配
 " replace：被替换字符串
 function! Replace(confirm, wholeword, replace)
-    let flag = ''
-    if a:confirm
-        let flag .= 'gec'
-    else
-        let flag .= 'ge'
-    endif
-    let search = ''
-    if a:wholeword
-        let search .= '\<' . escape(expand('<cword>'), '/\.*$^~[') . '\>'
-    else
-        let search .= expand('<cword>')
-    endif
-    let replace = escape(a:replace, '/\&~')
-    execute 'argdo %s/' . search . '/' . replace . '/' . flag . '| update'
+	wa!
+	let flag = ''
+	if a:confirm
+		let flag .= 'gec'
+	else
+		let flag .= 'ge'
+	endif
+	let search = ''
+	if a:wholeword
+		let search .= '\<' . escape(expand('<cword>'), '/\.*$^~[') . '\>'
+	else
+		let search .= expand('<cword>')
+	endif
+	let replace = escape(a:replace, '/\&~')
+	execute 'argdo %s/' . search . '/' . replace . '/' . flag . '| update'
 endfunction
 " 不确认、非整词
 nnoremap <Leader>R :call Replace(0, 0, input('Replace '.expand('<cword>').' with: '))<CR>
@@ -249,8 +324,6 @@ set noshowmode          " Don't show mode in cmd window
 set shortmess=aoOTI     " Shorten messages and don't show intro
 set scrolloff=25         " Keep at least 2 lines above/below
 set sidescrolloff=5       " Keep at least 5 lines left/right
-" set nonumber            " Don't show line numbers
-" set noruler             " Disable default status ruler
 set ruler                       " show the current row and column
 set number relativenumber
 " augroup numbertoggle
@@ -273,7 +346,6 @@ set showcmd             " Show command in status line
 set cmdheight=2         " Height of the command line
 set cmdwinheight=5      " Command-line lines
 set equalalways         " Resize windows on split or close
-set laststatus=2        " Always show a status line
 set colorcolumn=80      " Highlight the 80th character limit
 set display=lastline
 
@@ -315,51 +387,66 @@ if exists('&winblend')
 endif
 
 " }}}
-"auto implementation in cpp file{{{
-" nmap <leader>PC :CopyDefinition<CR>
-" nmap <leader>PP :ImplementDefinition<CR>
-" command! CopyDefinition :call s:GetDefinitionInfo()
-" command! ImplementDefinition :call s:ImplementDefinition()
-" function! s:GetDefinitionInfo()
-"   exe 'normal ma'
-"   " Get class
-"   call search('^\s*\<class\>', 'b')
-"   exe 'normal ^w"ayw'
-"   let s:class = @a
-"   let l:ns = search('^\s*\<namespace\>', 'b')
-"   " Get namespace
-"   if l:ns != 0
-"     exe 'normal ^w"ayw'
-"     let s:namespace = @a
-"   else
-"     let s:namespace = ''
-"   endif
-"   " Go back to definition
-"   exe 'normal `a'
-"   exe 'normal "aY'
-"   let s:defline = substitute(@a, ';\n', '', '')
-" endfunction
- 
-" function! s:ImplementDefinition()
-"   call append('.', s:defline)
-"   exe 'normal j'
-"   " Remove keywords
-"   s/\<virtual\>\s*//e
-"   s/\<static\>\s*//e
-"   if s:namespace == ''
-"     let l:classString = s:class . "::"
-"   else
-"     let l:classString = s:namespace . "::" . s:class . "::"
-"   endif
-"   " Remove default parameters
-"   s/\s\{-}=\s\{-}[^,)]\{1,}//e
-"   " Add class qualifier
-"   exe 'normal ^f(bi' . l:classString
-"   " Add brackets
-"   exe "normal $o{\<CR>\<TAB>\<CR>}\<CR>\<ESC>kkkk"
-"   " Fix indentation
-"   exe 'normal =4j^'
-" endfunction
+" add/update head comment in cpp file{{{
+
+silent! autocmd BufNewFile,BufWritePre *.c,*.h,*.cxx,*.cpp,*.hpp :silent! call TitleDet()
+function AddTitle()
+	call append(0,"/*=============================================================================")
+	call append(1,"*")
+	call append(2,"*   Copyright (C) ".strftime("%Y")." All rights reserved.")
+	call append(3,"*")
+	call append(4,"*   Filename: ".expand("%:t"))
+	call append(5,"*")
+	call append(6,"*   Author: Wang Zhecheng - wangzhecheng@yeah.net")
+	call append(7,"*")
+	call append(8,"*   Date: ".strftime("%Y-%m-%d %H:%M"))
+	call append(9,"*")
+	call append(10,"*   Last Editors: Wang Zhecheng - wangzhecheng@yeah.net")
+	call append(11,"*")
+	call append(12,"*   Last modified: ".strftime("%Y-%m-%d %H:%M"))
+	call append(13,"*")
+	call append(14,"*   Description: ")
+	call append(15,"*")
+	call append(16,"=============================================================================*/")
+	echohl WarningMsg | echo "Successful in adding the copyright." | echohl None
+endf
+"更新最近修改时间和文件名
+function UpdateTitle()
+	normal m'
+	execute '/* *Last modified:/s@:.*$@\=strftime(":\t%Y-%m-%d %H:%M")@'
+	normal ''
+	normal mk
+	execute '/* *Filename:/s@:.*$@\=":\t\t".expand("%:t")@'
+	execute "noh"
+	normal 'k
+	echohl WarningMsg | echo "Successful in updating the copy right." | echohl None
+endfunction
+"判断前10行代码里面，是否有Last modified这个单词，
+"如果没有的话，代表没有添加过作者信息，需要新添加；
+"如果有的话，那么只需要更新即可
+function TitleDet()
+	normal mv
+	normal gg
+	let n=1
+	"默认为添加
+	while n < 20
+		let line = getline(n)
+		if line =~ '^\*\s*\S*Last\smodified:\S*.*$'
+			call UpdateTitle()
+			normal 'v
+			return
+		endif
+		let n = n + 1
+	endwhile
+	normal O
+	call AddTitle()
+	normal dd
+	normal 'v
+endfunction
+"}}}
+"python related{{{
+let g:python_host_prog = '/System/Library/Frameworks/Python.framework/Versions/2.7/bin/python'
+let g:python3_host_prog='/usr/local/bin/python3'
 "}}}
 
 " key-mappings
@@ -438,10 +525,10 @@ nnoremap <leader>wc <C-w>c
 nnoremap <leader>wn <C-w>n
 nnoremap <leader>wx <C-w>x<C-w>w
 
-imap hhh <Esc>
-imap jjj <Esc>
-imap kkk <Esc>
-imap lll <Esc>
+" imap hhh <Esc>
+" imap jjj <Esc>
+" imap kkk <Esc>
+" imap lll <Esc>
 imap <C-h> <left>
 imap <C-j> <up>
 imap <C-k> <down>
@@ -587,67 +674,54 @@ function! s:append_modeline() "{{{
 endfunction "}}}
 
 " }}}
-"cmake in one key{{{
-nmap <Leader>run :wa<CR>:cmake CMakeLists.txt<CR>:make<CR><CR>:cw<CR>
-"}}}
-" Plugins
-" ===
-" vim-Plug{{{
-" 
-call plug#begin('~/.vim/plugged')
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"cmake related{{{
 
-Plug 'jackguo380/vim-lsp-cxx-highlight'
+" let g:cmake_cxx_compiler = 'clang++'
+" let g:cmake_c_compiler = 'clang'
+" let g:cmake_build_dirs = [ "build" ]
+" let g:cmake_build_type = "Debug"
+" let g:cmake_set_makeprg = 1
+" let g:cmake_build_directories = [ "build" ]
+" let g:cmake_build_dir = "build_${g:cmake_build_type}"
+function! s:select_build_type()
+	let type=input("select build type: 1.Debug 2.Release:")
+	if type=="1"
+		let g:cmake_build_type = "Debug"
+		echo " Debug build type selected!"
+	elseif type=="2"
+		let g:cmake_build_type = "Release"
+		echo " Release build type selected!"
+	endif
+endfunction
 
-if has('nvim')
-	Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
-	Plug 'kristijanhusak/defx-icons'
-else
-	Plug 'Shougo/defx.nvim'
-	Plug 'roxma/nvim-yarp'
-	Plug 'roxma/vim-hug-neovim-rpc'
-endif
-Plug 'kristijanhusak/defx-git'
+nnoremap  <leader>bt :call <SID>select_build_type()<CR>
 
-"Plug 'dracula/vim', { 'as': 'dracula' }
-" Plug 'w0ng/vim-hybrid'
-Plug 'morhetz/gruvbox'
+" function! s:cpp_debug()
+" 	wa!
+" 	!mkdir build
+" 	!cmake -DCMAKE_BUILD_TYPE=Debug CMakeLists.txt -B build
+" 	exe ":make -C build " s:dbg_target_name
+" 	call feedkeys("\<CR>")
+" 	cw
+" endfunction
+" function! s:debug_mode()
+" 	if s:dbg_flag == "y"
+" 		LLsession new
+" 		call feedkeys("\<CR>")
+" 		call feedkeys("\<CR>")
+" 		LLmode debug
+" 	endif
+" endfunction
+" function! s:debug_in_one_key()
+" 	let s:dbg_target_name = input("build cpp debug target: ", "")
+" 	call <SID>cpp_debug()
+" 	let s:dbg_flag=input("if enter debug mode? (y/n)")
+" 	call <SID>debug_mode()
+" endfunction
+" nmap <silent><Leader>dbg :call <SID>debug_in_one_key()<CR>
 
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
-Plug 'junegunn/vim-easy-align'
-
-Plug 'Yggdroot/indentLine'
-
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-commentary'
-
-Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
-
-Plug 'vim-scripts/DoxygenToolkit.vim' "doxygen 自动注释
-
-Plug 'brooth/far.vim'
-
-Plug 'tpope/vim-repeat'
-
-Plug 'terryma/vim-multiple-cursors'
-
-Plug 'neoclide/vim-easygit'
-
-" Plug 'sillybun/vim-repl'
-
-" Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install_sync() } ,'for':['markdown','vim-plug']}
-
-Plug 'skywind3000/vim-quickui'
-
-Plug 'derekwyatt/vim-fswitch'
-Plug 'derekwyatt/vim-protodef'
-
-Plug 'majutsushi/tagbar'
-call plug#end()
-
-"}}}
+" inoremap <silent><leader>hk =coc#start({'source': 'buildtype'})<CR>
+" }}}
 
 " Plugins settings
 " ===
@@ -656,11 +730,11 @@ call plug#end()
 let g:hybrid_custom_term_colors = 1
 let g:hybrid_reduced_contrast = 1 " Remove this line if using the default palette.
 colorscheme gruvbox 
-" Show vim syntax highlight groups for character under cursor
+"Show vim syntax highlight groups for character under cursor
 " nmap <silent> gh :echo 'hi<'.synIDattr(synID(line('.'), col('.'), 1), 'name')
 "   \.'> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name').'> lo<'
 "   \.synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name').'>'<CR>
-set background=dark
+" set background=dark
 "}}}
 " coc configuration{{{
 
@@ -687,7 +761,7 @@ set signcolumn=yes
 " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
 inoremap <silent><expr> <TAB>
 			\ pumvisible() ? "\<C-n>" :
-      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+			\ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
 			\ <SID>check_back_space() ? "\<TAB>" :
 			\ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
@@ -769,9 +843,6 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
 " use `:OR` for organize import of current buffer
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
-" Add status line support, for integration with other plugin, checkout `:h coc-status`
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Using CocList
 " Show all diagnostics
@@ -1189,71 +1260,106 @@ let g:repl_position = 3
 " tnoremap <C-l> <C-w><C-l>
 "}}}
 " Statusline{{{
-" ===
 
-" let s:stl  = " %7*%{&paste ? '=' : ''}%*"         " Paste symbol
-" let s:stl .= "%4*%{&readonly ? '' : '#'}%*"       " Modifide symbol
-" let s:stl .= "%6*%{badge#mode('⚠ ', 'Z')}"        " Read-only symbol
-" let s:stl .= '%*%n'                               " Buffer number
-" let s:stl .= "%6*%{badge#modified('+')}%0*"       " Write symbol
-" let s:stl .= ' %1*%{badge#filename()}%*'          " Filename
-" let s:stl .= ' %<'                                " Truncate here
-" let s:stl .= '%( %{badge#branch()} %)'           " Git branch name
-" let s:stl .= '%3*%( %{badge#gitstatus()} %)%*'    " Git status
-" let s:stl .= '%4*%(%{badge#syntax()} %)%*'        " syntax check
-" let s:stl .= "%4*%(%{badge#trails('␣%s')} %)%*"   " Whitespace
-" let s:stl .= '%3*%{badge#indexing()}%*'           " Indexing tags indicator
-" let s:stl .= '%='                                 " Align to right
-" let s:stl .= '%{badge#format()} %4*%*'           " File format
-" let s:stl .= '%( %{&fenc} %)'                     " File encoding
-" let s:stl .= '%4*%*%( %{&ft} %)'                 " File type
-" let s:stl .= '%3*%2* %l/%2c%4p%% '               " Line and column
+set laststatus=2        " Always show a status line
+function! Buf_total_num()
+	return len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+endfunction
+function! File_size(f)
+	let l:size = getfsize(expand(a:f))
+	if l:size == 0 || l:size == -1 || l:size == -2
+		return ''
+	endif
+	if l:size < 1024
+		return l:size.' bytes'
+	elseif l:size < 1024*1024
+		return printf('%.1f', l:size/1024.0).'k'
+	elseif l:size < 1024*1024*1024
+		return printf('%.1f', l:size/1024.0/1024.0) . 'm'
+	else
+		return printf('%.1f', l:size/1024.0/1024.0/1024.0) . 'g'
+	endif
+endfunction
 
-" Non-active Statusline
-" let s:stl_nc = " %{badge#mode('⚠ ', 'Z')}%n"   " Readonly & buffer
-" let s:stl_nc .= "%6*%{badge#modified('+')}%*"  " Write symbol
-" let s:stl_nc .= ' %{badge#filename()}'         " Relative supername
-" let s:stl_nc .= '%='                           " Align to right
-" let s:stl_nc .= '%{&ft} '                      " File type
+function! StatuslineModeColor()
+	let s:StatuslineMode=mode()
+	if s:StatuslineMode == 'n'
+		hi Statusline guibg=blue
+	elseif s:StatuslineMode == 'i'
+		hi Statusline guibg=red
+	endif
+endfunc
+let &stl.='%{StatuslineModeColor()}'
 
-" Status-line blacklist
-" let s:disable_statusline =
-"   \ 'denite\|vista\|tagbar\|undotree\|diff\|peekaboo\|sidemenu'
+let g:currentmode={
+			\ 'n'  : 'Normal',
+			\ 'no' : 'N·Operator Pending',
+			\ 'v'  : 'Visual',
+			\ 'V'  : 'V·Line',
+			\ '' : 'V·Block',
+			\ 's'  : 'Select',
+			\ 'S'  : 'S·Line',
+			\ '' : 'S·Block',
+			\ 'i'  : 'Insert',
+			\ 'R'  : 'Replace',
+			\ 'Rv' : 'V·Replace',
+			\ 'c'  : 'Command',
+			\ 'cv' : 'Vim Ex',
+			\ 'ce' : 'Ex',
+			\ 'r'  : 'Prompt',
+			\ 'rm' : 'More',
+			\ 'r?' : 'Confirm',
+			\ '!'  : 'Shell',
+			\'t':'fzf'
+			\}
+" Automatically change the statusline color depending on mode
+function! ChangeStatuslineColor() "{{{
+	if (g:colors_name == 'solarized' && exists('g:solarized_vars'))
+		let s:vars=g:solarized_vars
 
-" function! s:refresh()
-"   if &filetype ==# 'defx'
-    " let &l:statusline = '%y %<%=%{badge#filename()}%= %l/%L'
-  " elseif &filetype ==# 'magit'
-    " let &l:statusline = '%y %{badge#gitstatus()}%<%=%{badge#filename()}%= %l/%L'
-  " elseif &filetype !~# s:disable_statusline
-  "   let &l:statusline = s:stl
-  " endif
-" endfunction
+		if (mode() =~# '\v(n|no)')
+			exe 'hi! StatusLine '.s:vars['fmt_none'].s:vars['fg_base1'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		elseif (mode() =~# '\v(v|V)' || g:currentmode[mode()] ==# 'V·Block')
+			exe 'hi! StatusLine'.s:vars['fmt_none'].s:vars['fg_green'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		elseif (mode() ==# 'i')
+			exe 'hi! StatusLine'.s:vars['fmt_none'].s:vars['fg_red'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		else
+			exe 'hi! StatusLine '.s:vars['fmt_none'].s:vars['fg_base1'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		endif
+	endif
 
-" function! s:refresh_inactive()
-  " if &filetype ==# 'defx'
-  "   let &l:statusline = '%y %= %l/%L'
-  " elseif &filetype ==# 'magit'
-    " let &l:statusline = '%y %{badge#gitstatus()}%= %l/%L'
-  " elseif &filetype !~# s:disable_statusline
-  "   let &l:statusline = s:stl_nc
-  " endif
-" endfunction
+	return ''
+endfunction "}}}
 
-" augroup user_statusline
-  " autocmd!
+set statusline=
+set statusline+=%*%{ChangeStatuslineColor()}%*
+set statusline^=%9*\ %{toupper(g:currentmode[mode()])}\ %*
+set statusline+=%1*%m%r%h%w%*
+set statusline+=%2*[%F:\ Buf\ %3*%n-%{Buf_total_num()}%2*]%*
+set statusline+=%3*\ %{File_size(@%)}\ %*
+set statusline+=%4*%{exists('g:loaded_fugitive')?fugitive#statusline():''}%*
+set statusline+=%{coc#status()}
+set statusline+=%6*[Col=%6*%v%6*]%*
+set statusline+=%6*[Row=%6*%l%6*/%7*%L(%p%%)%6*]%*
 
-  " autocmd FileType,WinEnter,BufWinEnter,BufReadPost * call s:refresh()
-  " autocmd WinLeave * call s:refresh_inactive()
-  " autocmd BufNewFile,ShellCmdPost,BufWritePost * call s:refresh()
-  " autocmd FileChangedShellPost,ColorScheme * call s:refresh()
-  " autocmd FileReadPre,ShellCmdPost,FileWritePost * call s:refresh()
-  " autocmd User CocStatusChange,CocGitStatusChange call s:refresh()
-  " autocmd User CocDiagnosticChange call s:refresh()
-  " autocmd User GutentagsUpdating call s:refresh()
-" augroup END
+set statusline+=\ %=                        " align left
+set statusline+=[%b:0x%B]
+set statusline+=%4*[TYPE=%5*%Y%4*]%*
+set statusline+=%4*[FORMAT=%5*%{&ff}:%{&fenc!=''?&fenc:&enc}%4*]%*
+
+hi User1 guibg=gray guifg=red
+hi User2 guibg=#ffff5f guifg=black
+hi User3 guibg=#ffff5f guifg=red
+
+hi User6 guifg=white
+hi User7 guifg=red
+
+hi User4 guibg=#00ff00 guifg=black
+hi User5 guibg=#00ff00 guifg=red
+
+hi User9 guibg=#005fff guifg=yellow
 "}}}
-" easy git configuration{{{
+" git configuration{{{
 let g:easygit_enable_command = 1
 "}}}
 " markdown preview configuration{{{
@@ -1347,34 +1453,34 @@ call quickui#menu#reset()
 
 " install a 'File' menu, use [text, command] to represent an item.
 call quickui#menu#install('&File', [
-            \ [ "&Close", 'close' ],
-            \ [ "--", '' ],
-            \ [ "&Save\tw!", 'w!'],
-            \ [ "Save &All\tq!", 'wa!' ],
-            \ [ "--", '' ],
-            \ [ "E&xit\tAlt+x", 'q!' ],
-            \ ])
+			\ [ "&Close", 'close' ],
+			\ [ "--", '' ],
+			\ [ "&Save\tw!", 'w!'],
+			\ [ "Save &All\tq!", 'wa!' ],
+			\ [ "--", '' ],
+			\ [ "E&xit\tAlt+x", 'q!' ],
+			\ ])
 
 " install a 'File' menu, use [text, command] to represent an item.
 call quickui#menu#install('Fol&d', [
-            \ [ "&marker fold", 'se fdm=marker' ],
-            \ [ "&syntax fold", 'se fdm=syntax' ],
-            \ [ "&indent fold", 'se fdm=indent' ],
-            \ ])
+			\ [ "&marker fold", 'se fdm=marker' ],
+			\ [ "&syntax fold", 'se fdm=syntax' ],
+			\ [ "&indent fold", 'se fdm=indent' ],
+			\ ])
 " items containing tips, tips will display in the cmdline
 call quickui#menu#install('&Git', [
-            \ [ 'git &status', 'CocList gstatus' ],
-            \ [ 'git &diff', 'GdiffThis' ],
-            \ [ 'git &chunkinfo', 'CocCommand git.chunkInfo' ],
-            \ [ 'git &toggleGutters', 'CocCommand git.toggleGutters' ],
-            \ ])
+			\ [ 'git &status', 'CocList gstatus' ],
+			\ [ 'git &diff', 'GdiffThis' ],
+			\ [ 'git &chunkinfo', 'CocCommand git.chunkInfo' ],
+			\ [ 'git &toggleGutters', 'CocCommand git.toggleGutters' ],
+			\ ])
 
 " script inside %{...} will be evaluated and expanded in the string
 call quickui#menu#install("&List", [
-            \ [ "list &buffers", 'CocList buffers' ],
-						\ ['list &functions', 'echo 0'],
-						\ ['list &yanks', 'CocList yanks'],
-            \ ])
+			\ [ "list &buffers", 'CocList buffers' ],
+			\ ['list &functions', 'echo 0'],
+			\ ['list &yanks', 'CocList yanks'],
+			\ ])
 
 " script inside %{...} will be evaluated and expanded in the string
 call quickui#menu#install("&Option", [
@@ -1382,7 +1488,7 @@ call quickui#menu#install("&Option", [
 			\ ['Set &Spell %{&spell? "Off":"On"}', 'set spell!'],
 			\ ['Set &Cursor Line %{&cursorline? "Off":"On"}', 'set cursorlie!'],
 			\ ['Set &Paste %{&paste? "Off":"On"}', 'set paste!'],
-            \ ], '<auto>','c,cpp')
+			\ ], '<auto>','c,cpp')
 
 " enable to display tips in the cmdline
 let g:quickui_show_tip = 1
@@ -1393,24 +1499,24 @@ noremap <leader>mn :call quickui#menu#open()<cr>
 "}}}
 "switch between cpp and h{{{
 " map <leader>pp :call CurtineIncSw()<CR>
- " - Switch to the file and load it into the current window >
-	nmap <silent> <Leader>pp :FSHere<cr>
+" - Switch to the file and load it into the current window >
+nmap <silent> <Leader>pp :FSHere<cr>
 " < - Switch to the file and load it into the window on the right >
-	nmap <silent> <Leader>Pl :FSRight<cr>
+nmap <silent> <Leader>Pl :FSRight<cr>
 " < - Switch to the file and load it into a new window split on the right >
-	nmap <silent> <Leader>PL :FSSplitRight<cr>
+nmap <silent> <Leader>PL :FSSplitRight<cr>
 " < - Switch to the file and load it into the window on the left >
-	nmap <silent> <Leader>Ph :FSLeft<cr>
+nmap <silent> <Leader>Ph :FSLeft<cr>
 " < - Switch to the file and load it into a new window split on the left >
-	nmap <silent> <Leader>PH :FSSplitLeft<cr>
+nmap <silent> <Leader>PH :FSSplitLeft<cr>
 " < - Switch to the file and load it into the window above >
-	nmap <silent> <Leader>Pk :FSAbove<cr>
+nmap <silent> <Leader>Pk :FSAbove<cr>
 " < - Switch to the file and load it into a new window split above >
-	nmap <silent> <Leader>PK :FSSplitAbove<cr>
+nmap <silent> <Leader>PK :FSSplitAbove<cr>
 " < - Switch to the file and load it into the window below >
-	nmap <silent> <Leader>Pj :FSBelow<cr>
+nmap <silent> <Leader>Pj :FSBelow<cr>
 " < - Switch to the file and load it into a new window split below >
-	nmap <silent> <Leader>PJ :FSSplitBelow<cr>
+nmap <silent> <Leader>PJ :FSSplitBelow<cr>
 
 "}}}
 "tagbar configuration{{{
@@ -1424,372 +1530,62 @@ let tagbar_width=32
 let g:tagbar_compact=1
 " 设置 ctags 对哪些代码标识符生成标签
 let g:tagbar_type_cpp = {
-    \ 'kinds' : [
-         \ 'c:classes:0:1',
-         \ 'd:macros:0:1',
-         \ 'e:enumerators:0:0', 
-         \ 'f:functions:0:1',
-         \ 'g:enumeration:0:1',
-         \ 'l:local:0:1',
-         \ 'm:members:0:1',
-         \ 'n:namespaces:0:1',
-         \ 'p:functions_prototypes:0:1',
-         \ 's:structs:0:1',
-         \ 't:typedefs:0:1',
-         \ 'u:unions:0:1',
-         \ 'v:global:0:1',
-         \ 'x:external:0:1'
-     \ ],
-     \ 'sro'        : '::',
-     \ 'kind2scope' : {
-         \ 'g' : 'enum',
-         \ 'n' : 'namespace',
-         \ 'c' : 'class',
-         \ 's' : 'struct',
-         \ 'u' : 'union'
-     \ },
-     \ 'scope2kind' : {
-         \ 'enum'      : 'g',
-         \ 'namespace' : 'n',
-         \ 'class'     : 'c',
-         \ 'struct'    : 's',
-         \ 'union'     : 'u'
-     \ }
-\ }
+			\ 'kinds' : [
+			\ 'c:classes:0:1',
+			\ 'd:macros:0:1',
+			\ 'e:enumerators:0:0', 
+			\ 'f:functions:0:1',
+			\ 'g:enumeration:0:1',
+			\ 'l:local:0:1',
+			\ 'm:members:0:1',
+			\ 'n:namespaces:0:1',
+			\ 'p:functions_prototypes:0:1',
+			\ 's:structs:0:1',
+			\ 't:typedefs:0:1',
+			\ 'u:unions:0:1',
+			\ 'v:global:0:1',
+			\ 'x:external:0:1'
+			\ ],
+			\ 'sro'        : '::',
+			\ 'kind2scope' : {
+			\ 'g' : 'enum',
+			\ 'n' : 'namespace',
+			\ 'c' : 'class',
+			\ 's' : 'struct',
+			\ 'u' : 'union'
+			\ },
+			\ 'scope2kind' : {
+			\ 'enum'      : 'g',
+			\ 'namespace' : 'n',
+			\ 'class'     : 'c',
+			\ 'struct'    : 's',
+			\ 'union'     : 'u'
+			\ }
+			\ }
 "}}}
+"lldb related{{{
 
-" vim-badge 
-" ===
-" vim-badge - Bite-size badges for tab & status lines{{{
-" Maintainer: Rafael Bodill <justrafi at gmail dot com>
-"-------------------------------------------------
+function! s:set_build_target(_name)
+	let s:build_target_name = a:_name
+endfunction
+nmap <leader>tar :call <SID>set_build_target(input("set build target name:"))<CR>
 
-" Configuration
+hi LLBreakpointSign ctermfg=cyan guifg=red guibg=cyan
+hi LLSelectedPCLine ctermbg=DarkGrey guibg=DarkGrey
 
-"" Limit display of directories in path
-"let g:badge_tab_filename_max_dirs =
-"	\ get(g:, 'badge_tab_filename_max_dirs', 1)
-
-"" Limit display of characters in each directory in path
-"let g:badge_tab_dir_max_chars =
-"	\ get(g:, 'badge_tab_dir_max_chars', 5)
-
-"" Maximum number of directories in filepath
-"let g:badge_status_filename_max_dirs =
-"	\ get(g:, 'badge_status_filename_max_dirs', 3)
-
-"" Maximum number of characters in each directory
-"let g:badge_status_dir_max_chars =
-"	\ get(g:, 'badge_status_dir_max_chars', 5)
-
-"" Less verbosity on specific filetypes (regexp)
-"let g:badge_filetype_blacklist =
-"	\ get(g:, 'badge_filetype_blacklist',
-"	\ 'qf\|help\|vimfiler\|gundo\|diff\|fugitive\|gitv')
-
-"let g:badge_numeric_charset =
-"	\ get(g:, 'badge_numeric_charset',
-"	\ ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'])
-"	"\ ['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'])
-
-"let g:badge_loading_charset =
-"	\ get(g:, 'badge_loading_charset',
-"	\ ['⠃', '⠁', '⠉', '⠈', '⠐', '⠠', '⢠', '⣠', '⠄', '⠂'])
-
-"let g:badge_nofile = get(g:, 'badge_nofile', 'N/A')
-
-"let g:badge_project_separator = get(g:, 'badge_project_separator', '')
-
-"" Clear cache on save
-"augroup statusline_cache
-"	autocmd!
-"	autocmd BufWritePre,WinEnter,BufReadPost * call badge#clear_cache()
-"	autocmd User makeJobFinished call badge#clear_cache()
-"	autocmd User CocDiagnosticChange call badge#clear_cache()
-"	autocmd User CocStatusChange call badge#clear_cache()
-"augroup END
-
-"function! badge#clear_cache() abort
-"	unlet! b:badge_cache_trails b:badge_cache_syntax
-"		\ b:badge_cache_filename b:badge_cache_tab
-"endfunction
-
-"function! badge#project() abort
-"	" Try to guess the project's name
-
-"	let dir = badge#root()
-"	return fnamemodify(dir ? dir : getcwd(), ':t')
-"endfunction
-
-"function! badge#gitstatus(...) abort
-"	" Display git status indicators
-
-"	let l:icons = ['₊', '∗', '₋']  " added, modified, removed
-"	let l:out = ''
-"	" if &filetype ==# 'magit'
-"	"	let l:map = {}
-"	"	for l:file in magit#git#get_status()
-"	"		let l:map[l:file['unstaged']] = get(l:map, l:file['unstaged'], 0) + 1
-"	"	endfor
-"	"	for l:status in l:map
-"	"		let l:out = values(l:map)
-"	"	endfor
-"	" else
-"		if exists('*gitgutter#hunk#summary')
-"			let l:summary = gitgutter#hunk#summary(bufnr('%'))
-"			for l:idx in range(0, len(l:summary) - 1)
-"				if l:summary[l:idx] > 0
-"					let l:out .= ' ' . l:icons[l:idx] . l:summary[l:idx]
-"				endif
-"			endfor
-"		endif
-"	" endif
-"	return trim(l:out)
-"endfunction
-
-"function! badge#filename(...) abort
-"	" Provides relative path with limited characters in each directory name, and
-"	" limits number of total directories. Caches the result for current buffer.
-"	" Parameters:
-"	"   1: Buffer number, ignored if tab number supplied
-"	"   2: Tab number
-"	"   3: Enable to append total window count in tab
-"	"   4: Include project directory if different from current
-
-"	" Compute buffer name
-"	if a:0 > 1
-"		let l:buflist = tabpagebuflist(a:2)
-"		let l:bufnr = l:buflist[tabpagewinnr(a:2) - 1]
-"	elseif a:0 == 1
-"		let l:bufnr = a:1
-"	elseif a:0 == 0
-"		let l:bufnr = '%'
-"	endif
-
-"	" Use buffer's cached filepath
-"	let l:cache_var_name = 'badge_cache_' . (a:0 > 1 ? 'tab' : 'filename')
-"	let l:fn = getbufvar(l:bufnr, l:cache_var_name, '')
-"	if len(l:fn) > 0
-"		return l:fn
-"	endif
-
-"	let l:bufname = bufname(l:bufnr)
-"	let l:filetype = getbufvar(l:bufnr, '&filetype')
-
-"	if a:0 < 2 && l:filetype =~? g:badge_filetype_blacklist
-"		" Empty if owned by certain plugins
-"		let l:fn = ''
-"	elseif a:0 < 2 && l:filetype ==# 'defx'
-"		let l:defx = getbufvar(l:bufnr, 'defx')
-"		let l:fn = get(get(l:defx, 'context', {}), 'buffer_name')
-"		unlet! l:defx
-"	elseif a:0 < 2 && l:filetype ==# 'magit'
-"		let l:fn = magit#git#top_dir()
-"	elseif a:0 < 2 && l:filetype ==# 'vimfiler'
-"		let l:fn = vimfiler#get_status_string()
-"	elseif empty(l:bufname)
-"		" Placeholder for empty buffer
-"		let l:fn = g:badge_nofile
-"	else
-"		" let l:icons = defx_icons#get()
-"		" Shorten dir names
-"		let l:max = a:0 > 1 ?
-"			\ g:badge_tab_dir_max_chars : g:badge_status_dir_max_chars
-"		let short = substitute(l:bufname,
-"			\ "[^/]\\{" . l:max . "}\\zs[^/]\*\\ze/", '', 'g')
-
-"		" Decrease dir count
-"		let l:max = a:0 > 1 ?
-"			\ g:badge_tab_filename_max_dirs : g:badge_status_filename_max_dirs
-"		let parts = split(short, '/')
-"		if len(parts) > l:max
-"			let parts = parts[-l:max-1 : ]
-"		endif
-"		let l:fn = join(parts, '/')
-"	endif
-
-"	" Append fugitive blob type
-"	let l:fugitive = getbufvar(l:bufnr, 'fugitive_type')
-"	if l:fugitive ==# 'blob'
-"		let l:fn .= ' (blob)'
-"	endif
-
-"	" Append window count, for tabs
-"	if a:0 > 2 && a:3
-"		let l:win_count = tabpagewinnr(a:2, '$')
-"		if l:win_count > 1
-"			let l:fn .= s:numtr(l:win_count, g:badge_numeric_charset)
-"		endif
-"	endif
-
-"	" Prepend project dir, for tabs
-"	if a:0 > 3 && a:4
-"		" g:badge_project_separator
-"		" let project_dir = getbufvar(a:n, 'project_dir')
-"		" if strridx(filepath, project_dir) == 0
-"		"	let filepath = strpart(filepath, len(project_dir))
-"		"	let project .= fnamemodify(project_dir, ':t') . (a:0 > 0 ? a:1 : '|')
-"		"	let l:fn = project . l:fn
-"		"	endif
-"	endif
-
-"	" Cache and return the final result
-"	call setbufvar(l:bufnr, l:cache_var_name, l:fn)
-"	return l:fn
-"endfunction
-
-"function! badge#root() abort
-"	" Find the root directory by searching for the version-control dir
-
-"	let dir = getbufvar('%', 'project_dir')
-"	let curr_dir = getcwd()
-"	if empty(dir) || getbufvar('%', 'project_dir_last_cwd') != curr_dir
-"		let patterns = ['.git', '.git/', '_darcs/', '.hg/', '.bzr/', '.svn/']
-"		for pattern in patterns
-"			let is_dir = stridx(pattern, '/') != -1
-"			let match = is_dir ? finddir(pattern, curr_dir.';')
-"				\ : findfile(pattern, curr_dir.';')
-"			if ! empty(match)
-"				let dir = fnamemodify(match, is_dir ? ':p:h:h' : ':p:h')
-"				call setbufvar('%', 'project_dir', dir)
-"				call setbufvar('%', 'project_dir_last_cwd', curr_dir)
-"				break
-"			endif
-"		endfor
-"	endif
-"	return dir
-"endfunction
-
-"function! badge#branch() abort
-"	" Returns git branch name, using different plugins.
-
-"	if &filetype !~? g:badge_filetype_blacklist
-"		if exists('*gitbranch#name')
-"			return gitbranch#name()
-"		elseif exists('*vcs#info')
-"			return vcs#info('%b')
-"		elseif exists('fugitive#head')
-"			return fugitive#head(8)
-"		endif
-"	endif
-"	return ''
-"endfunction
-
-"function! badge#syntax() abort
-"	" Returns syntax warnings from several plugins (make and syntastic)
-
-"	if &filetype =~? g:badge_filetype_blacklist
-"		return ''
-"	endif
-
-"	let l:errors = 0
-"	let l:warnings = 0
-"	if ! exists('b:badge_cache_syntax') || empty(b:badge_cache_syntax)
-"		let b:badge_cache_syntax = ''
-"		if exists('*neomake#Make')
-"			let l:counts = neomake#statusline#get_counts(bufnr('%'))
-"			let l:errors = get(l:counts, 'E', '')
-"			let l:warnings = get(l:counts, 'W', '')
-"		elseif exists('g:loaded_ale')
-"			let l:counts = ale#statusline#Count(bufnr('%'))
-"			let l:errors = l:counts.error + l:counts.style_error
-"			let l:warnings = l:counts.total - l:errors
-"		elseif exists('*SyntasticStatuslineFlag')
-"			let b:badge_cache_syntax = SyntasticStatuslineFlag()
-"		endif
-"		if l:errors > 0
-"			let b:badge_cache_syntax .= printf(' %d ', l:errors)
-"		endif
-"		if l:warnings > 0
-"			let b:badge_cache_syntax .= printf(' %d ', l:warnings)
-"		endif
-"		let b:badge_cache_syntax = substitute(b:badge_cache_syntax, '\s*$', '', '')
-"	endif
-
-"	return b:badge_cache_syntax
-"endfunction
-
-"function! badge#trails(...) abort
-"	" Detect trailing whitespace and cache result per buffer
-"			if trailing != 0
-"				let label = a:0 == 1 ? a:1 : 'WS:%s'
-"				let b:badge_cache_trails .= printf(label, trailing)
-"			endif
-"		endif
-"	endif
-"	return b:badge_cache_trails
-"endfunction
-
-"function! badge#modified(...) abort
-"	" Make sure we ignore &modified when choosewin is active
-"	" Parameters:
-"	"   Modified symbol, default: +
-
-"	let label = a:0 == 1 ? a:1 : '+'
-"	let choosewin = exists('g:choosewin_active') && g:choosewin_active
-"	return &modified && ! choosewin ? label : ''
-"endfunction
-
-"function! badge#mode(...) abort
-"	" Returns file's mode: read-only and/or zoomed
-"	" Parameters:
-"	"   Read-only symbol, default: R
-"	"   Zoomed buffer symbol, default: Z
-
-"	let s:modes = ''
-"	if &filetype !~? g:badge_filetype_blacklist && &readonly
-"		let s:modes .= a:0 > 0 ? a:1 : 'R'
-"	endif
-"	if exists('t:zoomed') && bufnr('%') == t:zoomed.nr
-"		let s:modes .= a:0 > 1 ? a:2 : 'Z'
-"	endif
-
-"	return s:modes
-"endfunction
-
-"function! badge#format() abort
-"	" Returns file format
-
-"	return &filetype =~? g:badge_filetype_blacklist ? '' : &fileformat
-"endfunction
-
-"function! badge#session(...) abort
-"	" Returns an indicator for active session
-"	" Parameters:
-"	"   Active session symbol, default: [S]
-
-"	return empty(v:this_session) ? '' : a:0 == 1 ? a:1 : '[S]'
-"endfunction
-
-"function! badge#indexing() abort
-"	let l:out = ''
-
-"	if exists('*gutentags#statusline')
-"		let l:tags = gutentags#statusline('[', ']')
-"		if ! empty(l:tags)
-"			if exists('*reltime')
-"				let s:wait = split(reltimestr(reltime()), '\.')[1] / 100000
-"			else
-"				let s:wait = get(s:, 'wait', 9) == 9 ? 0 : s:wait + 1
-"			endif
-"			let l:out .= get(g:badge_loading_charset, s:wait, '') . ' ' . l:tags
-"		endif
-"	endif
-"	if exists('*coc#status')
-"		let l:out .= coc#status()
-"	endif
-"	if exists('g:SessionLoad') && g:SessionLoad == 1
-"		let l:out .= '[s]'
-"	endif
-"	return l:out
-"endfunction
-
-"function! s:numtr(number, charset) abort
-"	let l:result = ''
-"	for l:char in split(a:number, '\zs')
-"		let l:result .= a:charset[l:char]
-"	endfor
-"	return l:result
-"endfunction
-
-" vim: set ts=2 sw=2 tw=80 noet :}}}
+nmap <leader>bp <Plug>LLBreakSwitch
+function! s:run_to_cursor()
+	LLBreakSwitch
+	LL continue
+	LLBreakSwitch
+endfunction
+nmap <leader>rtc :call <SID>run_to_cursor()<CR>
+vmap <F2> <Plug>LLStdInSelected
+nnoremap <F4> :LLstdin<CR>
+nnoremap <F5> :LLmode debug<CR>
+nnoremap <S-F5> :LLmode code<CR>
+nnoremap <F8> :LL continue<CR>
+nnoremap <S-F8> :LL process interrupt<CR>
+nnoremap <F9> :LL print <C-R>=expand('<cword>')<CR>
+vnoremap <F9> :<C-U>LL print <C-R>=lldb#util#get_selection()<CR><CR>
+"}}}
