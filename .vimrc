@@ -5,8 +5,8 @@
 call plug#begin('~/.vim/plugged')
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-
-Plug 'jackguo380/vim-lsp-cxx-highlight'
+Plug 'octol/vim-cpp-enhanced-highlight'
+" Plug 'jackguo380/vim-lsp-cxx-highlight'
 
 if has('nvim')
 	Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -67,6 +67,10 @@ Plug 'vhdirk/vim-cmake'
 
 Plug 'tpope/vim-dispatch'
 
+Plug 'mhinz/vim-startify'
+
+Plug 'luochen1990/rainbow'
+
 call plug#end()
 
 "}}}
@@ -94,6 +98,8 @@ if has('vim_starting')
 	endif
 endif
 
+set autoread
+
 autocmd BufWritePost $MYVIMRC source $MYVIMRC " vimrc自动生效
 set mouse=nv                 " Disable mouse in command-line mode
 set modeline                 " automatically setting options from modelines
@@ -110,6 +116,7 @@ set synmaxcol=1000           " Don't syntax highlight long lines
 set formatoptions+=1         " Don't break lines after a one-letter word
 set formatoptions-=t         " Don't auto-wrap text
 set cursorline
+" set cursorcolumn
 if has('patch-7.3.541')
 	set formatoptions+=j       " Remove comment leader when joining lines
 endif
@@ -333,7 +340,6 @@ set number relativenumber
 " augroup END
 set list                " Show hidden characters
 
-set showtabline=2       " Always show the tabs line
 set winwidth=30         " Minimum width for active window
 set winminwidth=10      " Minimum width for inactive windows
 set winheight=4         " Minimum height for active window
@@ -346,12 +352,17 @@ set showcmd             " Show command in status line
 set cmdheight=2         " Height of the command line
 set cmdwinheight=5      " Command-line lines
 set equalalways         " Resize windows on split or close
-set colorcolumn=80      " Highlight the 80th character limit
 set display=lastline
+
+set colorcolumn=80      " Highlight the 80th character limit
+autocmd FileType json set colorcolumn=160      " Highlight the 80th character limit
 
 if has('folding')
 	set foldenable
 	set foldmethod=marker
+	autocmd FileType c,cpp set foldmethod=marker
+	autocmd FileType json set foldmethod=syntax
+	autocmd FileType py set foldmethod=indent
 	set foldlevelstart=99
 endif
 
@@ -381,12 +392,36 @@ if exists('&pumblend')
 	set pumblend=20
 endif
 
-if exists('&winblend')
-	" pseudo-transparency for floating window
-	set winblend=20
-endif
+"if exists('&winblend')
+"	" pseudo-transparency for floating window
+"	set winblend=20
+"endif
 
 " }}}
+"auto make{{{
+
+function! s:make_type(type_name)
+	let g:cmake_build_type = a:type_name
+endfunction
+command -nargs=? Mt call s:make_type(<f-args>)
+
+:command! Amake silent w | silent CMake | silent make | unsilent redraw! | cwindow
+
+function! s:make_target(target_name)
+	let s:build_target_name = a:target_name
+	exe ":silent !rm bin/" . a:target_name
+	silent wa
+	silent CMake
+	exe ":make " . a:target_name
+	exe ":!bin/" . a:target_name
+endfunction
+command -nargs=? Run call s:make_target(<f-args>)
+
+"}}}
+"auto mark when quit{{{
+
+silent! autocmd QuitPre mM
+"}}}
 " add/update head comment in cpp file{{{
 
 silent! autocmd BufNewFile,BufWritePre *.c,*.h,*.cxx,*.cpp,*.hpp :silent! call TitleDet()
@@ -673,54 +708,6 @@ function! s:append_modeline() "{{{
 	call append(line('$'), l:modeline)
 endfunction "}}}
 
-" }}}
-"cmake related{{{
-
-" let g:cmake_cxx_compiler = 'clang++'
-" let g:cmake_c_compiler = 'clang'
-" let g:cmake_build_dirs = [ "build" ]
-" let g:cmake_build_type = "Debug"
-" let g:cmake_set_makeprg = 1
-" let g:cmake_build_directories = [ "build" ]
-" let g:cmake_build_dir = "build_${g:cmake_build_type}"
-function! s:select_build_type()
-	let type=input("select build type: 1.Debug 2.Release:")
-	if type=="1"
-		let g:cmake_build_type = "Debug"
-		echo " Debug build type selected!"
-	elseif type=="2"
-		let g:cmake_build_type = "Release"
-		echo " Release build type selected!"
-	endif
-endfunction
-
-nnoremap  <leader>bt :call <SID>select_build_type()<CR>
-
-" function! s:cpp_debug()
-" 	wa!
-" 	!mkdir build
-" 	!cmake -DCMAKE_BUILD_TYPE=Debug CMakeLists.txt -B build
-" 	exe ":make -C build " s:dbg_target_name
-" 	call feedkeys("\<CR>")
-" 	cw
-" endfunction
-" function! s:debug_mode()
-" 	if s:dbg_flag == "y"
-" 		LLsession new
-" 		call feedkeys("\<CR>")
-" 		call feedkeys("\<CR>")
-" 		LLmode debug
-" 	endif
-" endfunction
-" function! s:debug_in_one_key()
-" 	let s:dbg_target_name = input("build cpp debug target: ", "")
-" 	call <SID>cpp_debug()
-" 	let s:dbg_flag=input("if enter debug mode? (y/n)")
-" 	call <SID>debug_mode()
-" endfunction
-" nmap <silent><Leader>dbg :call <SID>debug_in_one_key()<CR>
-
-" inoremap <silent><leader>hk =coc#start({'source': 'buildtype'})<CR>
 " }}}
 
 " Plugins settings
@@ -1259,106 +1246,6 @@ let g:repl_position = 3
 " tnoremap <C-k> <C-w><C-k>
 " tnoremap <C-l> <C-w><C-l>
 "}}}
-" Statusline{{{
-
-set laststatus=2        " Always show a status line
-function! Buf_total_num()
-	return len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-endfunction
-function! File_size(f)
-	let l:size = getfsize(expand(a:f))
-	if l:size == 0 || l:size == -1 || l:size == -2
-		return ''
-	endif
-	if l:size < 1024
-		return l:size.' bytes'
-	elseif l:size < 1024*1024
-		return printf('%.1f', l:size/1024.0).'k'
-	elseif l:size < 1024*1024*1024
-		return printf('%.1f', l:size/1024.0/1024.0) . 'm'
-	else
-		return printf('%.1f', l:size/1024.0/1024.0/1024.0) . 'g'
-	endif
-endfunction
-
-function! StatuslineModeColor()
-	let s:StatuslineMode=mode()
-	if s:StatuslineMode == 'n'
-		hi Statusline guibg=blue
-	elseif s:StatuslineMode == 'i'
-		hi Statusline guibg=red
-	endif
-endfunc
-let &stl.='%{StatuslineModeColor()}'
-
-let g:currentmode={
-			\ 'n'  : 'Normal',
-			\ 'no' : 'N·Operator Pending',
-			\ 'v'  : 'Visual',
-			\ 'V'  : 'V·Line',
-			\ '' : 'V·Block',
-			\ 's'  : 'Select',
-			\ 'S'  : 'S·Line',
-			\ '' : 'S·Block',
-			\ 'i'  : 'Insert',
-			\ 'R'  : 'Replace',
-			\ 'Rv' : 'V·Replace',
-			\ 'c'  : 'Command',
-			\ 'cv' : 'Vim Ex',
-			\ 'ce' : 'Ex',
-			\ 'r'  : 'Prompt',
-			\ 'rm' : 'More',
-			\ 'r?' : 'Confirm',
-			\ '!'  : 'Shell',
-			\'t':'fzf'
-			\}
-" Automatically change the statusline color depending on mode
-function! ChangeStatuslineColor() "{{{
-	if (g:colors_name == 'solarized' && exists('g:solarized_vars'))
-		let s:vars=g:solarized_vars
-
-		if (mode() =~# '\v(n|no)')
-			exe 'hi! StatusLine '.s:vars['fmt_none'].s:vars['fg_base1'].s:vars['bg_base02'].s:vars['fmt_revbb']
-		elseif (mode() =~# '\v(v|V)' || g:currentmode[mode()] ==# 'V·Block')
-			exe 'hi! StatusLine'.s:vars['fmt_none'].s:vars['fg_green'].s:vars['bg_base02'].s:vars['fmt_revbb']
-		elseif (mode() ==# 'i')
-			exe 'hi! StatusLine'.s:vars['fmt_none'].s:vars['fg_red'].s:vars['bg_base02'].s:vars['fmt_revbb']
-		else
-			exe 'hi! StatusLine '.s:vars['fmt_none'].s:vars['fg_base1'].s:vars['bg_base02'].s:vars['fmt_revbb']
-		endif
-	endif
-
-	return ''
-endfunction "}}}
-
-set statusline=
-set statusline+=%*%{ChangeStatuslineColor()}%*
-set statusline^=%9*\ %{toupper(g:currentmode[mode()])}\ %*
-set statusline+=%1*%m%r%h%w%*
-set statusline+=%2*[%F:\ Buf\ %3*%n-%{Buf_total_num()}%2*]%*
-set statusline+=%3*\ %{File_size(@%)}\ %*
-set statusline+=%4*%{exists('g:loaded_fugitive')?fugitive#statusline():''}%*
-set statusline+=%{coc#status()}
-set statusline+=%6*[Col=%6*%v%6*]%*
-set statusline+=%6*[Row=%6*%l%6*/%7*%L(%p%%)%6*]%*
-
-set statusline+=\ %=                        " align left
-set statusline+=[%b:0x%B]
-set statusline+=%4*[TYPE=%5*%Y%4*]%*
-set statusline+=%4*[FORMAT=%5*%{&ff}:%{&fenc!=''?&fenc:&enc}%4*]%*
-
-hi User1 guibg=gray guifg=red
-hi User2 guibg=#ffff5f guifg=black
-hi User3 guibg=#ffff5f guifg=red
-
-hi User6 guifg=white
-hi User7 guifg=red
-
-hi User4 guibg=#00ff00 guifg=black
-hi User5 guibg=#00ff00 guifg=red
-
-hi User9 guibg=#005fff guifg=yellow
-"}}}
 " git configuration{{{
 let g:easygit_enable_command = 1
 "}}}
@@ -1474,9 +1361,14 @@ call quickui#menu#install('&Git', [
 			\ [ 'git &chunkinfo', 'CocCommand git.chunkInfo' ],
 			\ [ 'git &toggleGutters', 'CocCommand git.toggleGutters' ],
 			\ ])
+" script inside %{...} will be evaluated and expanded in the string
+call quickui#menu#install("Toggl&e", [
+			\ ['Toggle &wrapper', 'se wrap!'],
+			\ ['Toggle &function list', 'TagbarToggle'],
+			\ ])
 
 " script inside %{...} will be evaluated and expanded in the string
-call quickui#menu#install("&List", [
+call quickui#menu#install("Li&st", [
 			\ [ "list &buffers", 'CocList buffers' ],
 			\ ['list &functions', 'echo 0'],
 			\ ['list &yanks', 'CocList yanks'],
@@ -1484,11 +1376,10 @@ call quickui#menu#install("&List", [
 
 " script inside %{...} will be evaluated and expanded in the string
 call quickui#menu#install("&Option", [
-			\ ['Show &function list', 'TagbarToggle'],
 			\ ['Set &Spell %{&spell? "Off":"On"}', 'set spell!'],
 			\ ['Set &Cursor Line %{&cursorline? "Off":"On"}', 'set cursorlie!'],
 			\ ['Set &Paste %{&paste? "Off":"On"}', 'set paste!'],
-			\ ], '<auto>','c,cpp')
+			\ ])
 
 " enable to display tips in the cmdline
 let g:quickui_show_tip = 1
@@ -1565,11 +1456,6 @@ let g:tagbar_type_cpp = {
 "}}}
 "lldb related{{{
 
-function! s:set_build_target(_name)
-	let s:build_target_name = a:_name
-endfunction
-nmap <leader>tar :call <SID>set_build_target(input("set build target name:"))<CR>
-
 hi LLBreakpointSign ctermfg=cyan guifg=red guibg=cyan
 hi LLSelectedPCLine ctermbg=DarkGrey guibg=DarkGrey
 
@@ -1588,4 +1474,169 @@ nnoremap <F8> :LL continue<CR>
 nnoremap <S-F8> :LL process interrupt<CR>
 nnoremap <F9> :LL print <C-R>=expand('<cword>')<CR>
 vnoremap <F9> :<C-U>LL print <C-R>=lldb#util#get_selection()<CR><CR>
+"}}}
+"easy align{{{
+vmap <Leader>a <Plug>(EasyAlign)
+nmap <Leader>a <Plug>(EasyAlign)
+"}}}
+" Statusline{{{
+
+set laststatus=2        " Always show a status line
+function! Buf_total_num()
+	return len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+endfunction
+function! File_size(f)
+	let l:size = getfsize(expand(a:f))
+	if l:size == 0 || l:size == -1 || l:size == -2
+		return ''
+	endif
+	if l:size < 1024
+		return l:size.' bytes'
+	elseif l:size < 1024*1024
+		return printf('%.1f', l:size/1024.0).'k'
+	elseif l:size < 1024*1024*1024
+		return printf('%.1f', l:size/1024.0/1024.0) . 'm'
+	else
+		return printf('%.1f', l:size/1024.0/1024.0/1024.0) . 'g'
+	endif
+endfunction
+
+function! StatuslineModeColor()
+	let s:StatuslineMode=mode()
+	if s:StatuslineMode == 'n'
+		hi Statusline guibg=blue
+	elseif s:StatuslineMode == 'i'
+		hi Statusline guibg=red
+	endif
+endfunc
+let &stl.='%{StatuslineModeColor()}'
+
+let g:currentmode={
+			\ 'n'  : 'Normal',
+			\ 'no' : 'N·Operator Pending',
+			\ 'v'  : 'Visual',
+			\ 'V'  : 'V·Line',
+			\ '' : 'V·Block',
+			\ 's'  : 'Select',
+			\ 'S'  : 'S·Line',
+			\ '' : 'S·Block',
+			\ 'i'  : 'Insert',
+			\ 'R'  : 'Replace',
+			\ 'Rv' : 'V·Replace',
+			\ 'c'  : 'Command',
+			\ 'cv' : 'Vim Ex',
+			\ 'ce' : 'Ex',
+			\ 'r'  : 'Prompt',
+			\ 'rm' : 'More',
+			\ 'r?' : 'Confirm',
+			\ '!'  : 'Shell',
+			\'t':'fzf'
+			\}
+" Automatically change the statusline color depending on mode
+function! ChangeStatuslineColor() "{{{
+	if (g:colors_name == 'solarized' && exists('g:solarized_vars'))
+		let s:vars=g:solarized_vars
+
+		if (mode() =~# '\v(n|no)')
+			exe 'hi! StatusLine '.s:vars['fmt_none'].s:vars['fg_base1'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		elseif (mode() =~# '\v(v|V)' || g:currentmode[mode()] ==# 'V·Block')
+			exe 'hi! StatusLine'.s:vars['fmt_none'].s:vars['fg_green'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		elseif (mode() ==# 'i')
+			exe 'hi! StatusLine'.s:vars['fmt_none'].s:vars['fg_red'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		else
+			exe 'hi! StatusLine '.s:vars['fmt_none'].s:vars['fg_base1'].s:vars['bg_base02'].s:vars['fmt_revbb']
+		endif
+	endif
+
+	return ''
+endfunction "}}}
+
+set statusline=
+set statusline+=%*%{ChangeStatuslineColor()}%*
+set statusline^=%9*\ %{toupper(g:currentmode[mode()])}\ %*
+set statusline+=%1*%m%r%h%w%*
+set statusline+=%2*[%f:\ Buf\ %3*%n-%{Buf_total_num()}%2*]%*
+set statusline+=%3*\ %{File_size(@%)}\ %*
+set statusline+=%4*%{exists('g:loaded_fugitive')?fugitive#statusline():''}%*
+set statusline+=%{coc#status()}
+set statusline+=%6*[Col=%6*%v%6*]%*
+set statusline+=%6*[Row=%6*%l%6*/%7*%L(%p%%)%6*]%*
+
+set statusline+=\ %=                        " align left
+set statusline+=[%b:0x%B]
+set statusline+=%4*[TYPE=%5*%Y%4*]%*
+set statusline+=%4*[FORMAT=%5*%{&ff}:%{&fenc!=''?&fenc:&enc}%4*]%*
+
+hi User1 guibg=gray guifg=red
+hi User2 guibg=#ffff5f guifg=black
+hi User3 guibg=#ffff5f guifg=red
+
+hi User6 guifg=white
+hi User7 guifg=red
+
+hi User4 guibg=#00ff00 guifg=black
+hi User5 guibg=#00ff00 guifg=red
+
+hi User9 guibg=#005fff guifg=yellow
+"}}}
+"Tabline {{{
+
+set showtabline=2       " Always show the tabs line
+set tabline+=%6*%F
+
+"}}}
+"rainbow{{{
+let g:rainbow_active = 1"
+let g:rainbow_conf = {
+\   'guifgs': ['darkorange3', 'seagreen3', 'royalblue3', 'firebrick'],
+\   'ctermfgs': ['lightyellow', 'lightcyan','lightblue', 'lightmagenta'],
+\   'operators': '_,_',
+\   'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
+\   'separately': {
+\       '*': {},
+\       'tex': {
+\           'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/'],
+\       },
+\       'lisp': {
+\           'guifgs': ['darkorange3', 'seagreen3', 'royalblue3', 'firebrick'],
+\       },
+\       'vim': {
+\           'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/', 'start=/{/ end=/}/ fold', 'start=/(/ end=/)/ containedin=vimFuncBody', 'start=/\[/ end=/\]/ containedin=vimFuncBody', 'start=/{/ end=/}/ fold containedin=vimFuncBody'],
+\       },
+\       'html': {
+\           'parentheses': ['start=/\v\<((area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)[ >])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=("[^"]*"|'."'".'[^'."'".']*'."'".'|[^ '."'".'"><=`]*))?)*\>/ end=#</\z1># fold'],
+\       },
+\       'css': 0,
+\   }
+\}"}}}
+"additional vim c++ syntax highlighting{{{
+
+
+" Highlighting of class scope is disabled by default. To enable set
+let g:cpp_class_scope_highlight = 1
+
+" Highlighting of member variables is disabled by default. To enable set
+let g:cpp_member_variable_highlight = 1
+
+" Highlighting of class names in declarations is disabled by default. To enable set
+let g:cpp_class_decl_highlight = 1
+
+" Highlighting of POSIX functions is disabled by default. To enable set
+let g:cpp_posix_standard = 1
+
+" There are two ways to highlight template functions. Either
+let g:cpp_experimental_simple_template_highlight = 1
+" which works in most cases, but can be a little slow on large files. Alternatively set
+" let g:cpp_experimental_template_highlight = 1
+" which is a faster implementation but has some corner cases where it doesn't work.
+
+" Note: C++ template syntax is notoriously difficult to parse, so don't expect this feature to be perfect.
+
+" Highlighting of library concepts is enabled by
+let g:cpp_concepts_highlight = 1
+
+" This will highlight the keywords concept and requires as well as all named requirements (like DefaultConstructible) in the standard library.
+" Highlighting of user defined functions can be disabled by
+" let g:cpp_no_function_highlight = 1
+
 "}}}
