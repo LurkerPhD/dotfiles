@@ -5,7 +5,7 @@ export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 alias ls="ls -GFh -a"
 
-alias vim=nvim
+# alias vim=nvim
 
 setopt NO_LIST_BEEP MENU_COMPLETE AUTO_MENU
 

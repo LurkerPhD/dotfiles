@@ -108,6 +108,7 @@ plugins=(git
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+# export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles
 
 # color for less and man 
 export MANPAGER='less -s -M +Gg'
@@ -125,5 +126,5 @@ export PATH="/usr/local/texlive/2019/bin/x86_64-darwin:$PATH"
 eval "$(pyenv init -)"
 # export PYTHONPATH="/usr/local/bin/python2:${PYTHONPATH}"
 export PATH="/usr/bin:${PATH}"
-export PYTHONPATH="/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Resources/Python:${PYTHONPATH}"
+export PYTHONPATH="/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Resources/Python3:${PYTHONPATH}"
 export PATH="/usr/local/opt/llvm/bin:$PATH"

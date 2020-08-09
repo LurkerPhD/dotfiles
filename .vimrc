@@ -5,8 +5,7 @@
 call plug#begin('~/.vim/plugged')
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-Plug 'octol/vim-cpp-enhanced-highlight'
-" Plug 'jackguo380/vim-lsp-cxx-highlight'
+Plug 'jackguo380/vim-lsp-cxx-highlight'
 
 if has('nvim')
 	Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -27,20 +26,20 @@ Plug 'morhetz/gruvbox'
 
 Plug 'junegunn/vim-easy-align'
 
-Plug 'Yggdroot/indentLine'
+Plug 'Yggdroot/indentLine' "indent line可视
 
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround' "surround神器
+Plug 'tpope/vim-commentary' "自动注释
 
 Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
 
 Plug 'vim-scripts/DoxygenToolkit.vim' "doxygen 自动注释
 
-Plug 'brooth/far.vim'
+Plug 'brooth/far.vim' "far搜索
 
 Plug 'tpope/vim-repeat'
 
-Plug 'terryma/vim-multiple-cursors'
+Plug 'terryma/vim-multiple-cursors' "多cursor，一般不用
 
 Plug 'neoclide/vim-easygit'
 
@@ -48,18 +47,20 @@ Plug 'neoclide/vim-easygit'
 
 " Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install_sync() } ,'for':['markdown','vim-plug']}
 
-Plug 'skywind3000/vim-quickui'
+Plug 'skywind3000/vim-quickui' "菜单栏
 
-Plug 'derekwyatt/vim-fswitch'
-Plug 'derekwyatt/vim-protodef'
+Plug 'derekwyatt/vim-fswitch' "h文件cpp文件切换
+Plug 'derekwyatt/vim-protodef' "def
 
-Plug 'majutsushi/tagbar'
+"2种函数列表
+" Plug 'majutsushi/tagbar' 
+Plug 'liuchengxu/vista.vim'
 
-Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-fugitive' "git神器
 
-Plug 'dbgx/lldb.nvim'
+" Plug 'dbgx/lldb.nvim'
 
-Plug 'vhdirk/vim-cmake'
+Plug 'vhdirk/vim-cmake' "cmake 插件
 " Plug 'jalcine/cmake.vim'
 " Plug 'ilyachur/cmake4vim'
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -69,7 +70,9 @@ Plug 'tpope/vim-dispatch'
 
 Plug 'mhinz/vim-startify'
 
-Plug 'luochen1990/rainbow'
+Plug 'luochen1990/rainbow' "彩色括号
+
+Plug 'puremourning/vimspector' "debug神器
 
 call plug#end()
 
@@ -94,7 +97,7 @@ if has('vim_starting')
 	xnoremap ;        <Nop>
 	" Vim only, Linux terminal settings
 	if ! has('nvim') && ! has('gui_running') && ! has('win32') && ! has('win64')
-		call s:source_file('config/terminal.vim')
+		" call s:source_file('config/terminal.vim')
 	endif
 endif
 
@@ -320,7 +323,7 @@ if has('patch-7.4.775')
 endif
 
 if has('patch-8.1.0360') || has('nvim-0.4')
-	set diffopt+=internal,algorithm:patience
+	" set diffopt+=internal,algorithm:patience
 	" set diffopt=indent-heuristic,algorithm:patience
 endif
 
@@ -403,7 +406,7 @@ endif
 function! s:make_type(type_name)
 	let g:cmake_build_type = a:type_name
 endfunction
-command -nargs=? Mt call s:make_type(<f-args>)
+command -nargs=? Bt call s:make_type(<f-args>)
 
 :command! Amake silent w | silent CMake | silent make | unsilent redraw! | cwindow
 
@@ -721,7 +724,7 @@ colorscheme gruvbox
 " nmap <silent> gh :echo 'hi<'.synIDattr(synID(line('.'), col('.'), 1), 'name')
 "   \.'> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name').'> lo<'
 "   \.synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name').'>'<CR>
-" set background=dark
+set background=dark
 "}}}
 " coc configuration{{{
 
@@ -1364,7 +1367,7 @@ call quickui#menu#install('&Git', [
 " script inside %{...} will be evaluated and expanded in the string
 call quickui#menu#install("Toggl&e", [
 			\ ['Toggle &wrapper', 'se wrap!'],
-			\ ['Toggle &function list', 'TagbarToggle'],
+			\ ['Toggle &function list', 'Vista coc'],
 			\ ])
 
 " script inside %{...} will be evaluated and expanded in the string
@@ -1456,24 +1459,24 @@ let g:tagbar_type_cpp = {
 "}}}
 "lldb related{{{
 
-hi LLBreakpointSign ctermfg=cyan guifg=red guibg=cyan
-hi LLSelectedPCLine ctermbg=DarkGrey guibg=DarkGrey
+" hi LLBreakpointSign ctermfg=cyan guifg=red guibg=cyan
+" hi LLSelectedPCLine ctermbg=DarkGrey guibg=DarkGrey
 
-nmap <leader>bp <Plug>LLBreakSwitch
-function! s:run_to_cursor()
-	LLBreakSwitch
-	LL continue
-	LLBreakSwitch
-endfunction
-nmap <leader>rtc :call <SID>run_to_cursor()<CR>
-vmap <F2> <Plug>LLStdInSelected
-nnoremap <F4> :LLstdin<CR>
-nnoremap <F5> :LLmode debug<CR>
-nnoremap <S-F5> :LLmode code<CR>
-nnoremap <F8> :LL continue<CR>
-nnoremap <S-F8> :LL process interrupt<CR>
-nnoremap <F9> :LL print <C-R>=expand('<cword>')<CR>
-vnoremap <F9> :<C-U>LL print <C-R>=lldb#util#get_selection()<CR><CR>
+" nmap <leader>bp <Plug>LLBreakSwitch
+" function! s:run_to_cursor()
+" 	LLBreakSwitch
+" 	LL continue
+" 	LLBreakSwitch
+" endfunction
+" nmap <leader>rtc :call <SID>run_to_cursor()<CR>
+" vmap <F2> <Plug>LLStdInSelected
+" nnoremap <F4> :LLstdin<CR>
+" nnoremap <F5> :LLmode debug<CR>
+" nnoremap <S-F5> :LLmode code<CR>
+" nnoremap <F8> :LL continue<CR>
+" nnoremap <S-F8> :LL process interrupt<CR>
+" nnoremap <F9> :LL print <C-R>=expand('<cword>')<CR>
+" vnoremap <F9> :<C-U>LL print <C-R>=lldb#util#get_selection()<CR><CR>
 "}}}
 "easy align{{{
 vmap <Leader>a <Plug>(EasyAlign)
@@ -1555,14 +1558,14 @@ set statusline=
 set statusline+=%*%{ChangeStatuslineColor()}%*
 set statusline^=%9*\ %{toupper(g:currentmode[mode()])}\ %*
 set statusline+=%1*%m%r%h%w%*
-set statusline+=%2*[%f:\ Buf\ %3*%n-%{Buf_total_num()}%2*]%*
+set statusline+=%2*[%t:\ Buf\ %3*%n-%{Buf_total_num()}%2*]%*
 set statusline+=%3*\ %{File_size(@%)}\ %*
 set statusline+=%4*%{exists('g:loaded_fugitive')?fugitive#statusline():''}%*
-set statusline+=%{coc#status()}
 set statusline+=%6*[Col=%6*%v%6*]%*
 set statusline+=%6*[Row=%6*%l%6*/%7*%L(%p%%)%6*]%*
 
 set statusline+=\ %=                        " align left
+set statusline+=%{coc#status()}
 set statusline+=[%b:0x%B]
 set statusline+=%4*[TYPE=%5*%Y%4*]%*
 set statusline+=%4*[FORMAT=%5*%{&ff}:%{&fenc!=''?&fenc:&enc}%4*]%*
@@ -1584,6 +1587,58 @@ hi User9 guibg=#005fff guifg=yellow
 set showtabline=2       " Always show the tabs line
 set tabline+=%6*%F
 
+"}}}
+"vista{{{
+
+function! NearestMethodOrFunction() abort
+  return get(b:, 'vista_nearest_method_or_function', '')
+endfunction
+
+set statusline+=%{NearestMethodOrFunction()}
+
+" By default vista.vim never run if you don't call it explicitly.
+"
+" If you want to show the nearest function in your statusline automatically,
+" you can add the following line to your vimrc
+autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
+
+" How each level is indented and what to prepend.
+" This could make the display more compact or more spacious.
+" e.g., more compact: ["▸ ", ""]
+" Note: this option only works the LSP executives, doesn't work for `:Vista ctags`.
+let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
+
+" Executive used when opening vista sidebar without specifying it.
+" See all the avaliable executives via `:echo g:vista#executives`.
+let g:vista_default_executive = 'ctags'
+
+" Set the executive for some filetypes explicitly. Use the explicit executive
+" instead of the default one for these filetypes when using `:Vista` without
+" specifying the executive.
+let g:vista_executive_for = {
+  \ 'cpp': 'vim_lsp',
+  \ 'php': 'vim_lsp',
+  \ }
+
+" Declare the command including the executable and options used to generate ctags output
+" for some certain filetypes.The file path will be appened to your custom command.
+" For example:
+let g:vista_ctags_cmd = {
+      \ 'haskell': 'hasktags -x -o - -c',
+      \ }
+
+" To enable fzf's preview window set g:vista_fzf_preview.
+" The elements of g:vista_fzf_preview will be passed as arguments to fzf#vim#with_preview()
+" For example:
+let g:vista_fzf_preview = ['right:50%']
+" Ensure you have installed some decent font to show these pretty symbols, then you can enable icon for the kind.
+let g:vista#renderer#enable_icon = 1
+
+" The default icons can't be suitable for all the filetypes, you can extend it as you wish.
+let g:vista#renderer#icons = {
+\   "function": "\uf794",
+\   "variable": "\uf71b",
+\  }
 "}}}
 "rainbow{{{
 let g:rainbow_active = 1"
@@ -1638,5 +1693,18 @@ let g:cpp_concepts_highlight = 1
 " This will highlight the keywords concept and requires as well as all named requirements (like DefaultConstructible) in the standard library.
 " Highlighting of user defined functions can be disabled by
 " let g:cpp_no_function_highlight = 1
+
+"}}}
+"vimspector{{{
+
+let g:vimspector_enable_mappings = 'VISUAL_STUDIO'
+
+" packadd! vimspector
+
+nmap <silent> <leader>dd :call vimspector#Launch()<CR>
+nmap <silent> <Leader>db :call vimspector#ToggleBreakpoint()<CR>
+nmap <silent> <Leader>dc :call vimspector#Continue()<CR>
+nmap <silent> <Leader>dx :call vimspector#Reset()<CR>
+command -nargs=? Bpc call vimspector#ToggleBreakpoint([ { 'condition': '<f-args>' } ])
 
 "}}}
