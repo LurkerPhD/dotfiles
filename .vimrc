@@ -21,9 +21,6 @@ Plug 'kristijanhusak/defx-git'
 " Plug 'w0ng/vim-hybrid'
 Plug 'morhetz/gruvbox'
 
-" Plug 'vim-airline/vim-airline'
-" Plug 'vim-airline/vim-airline-themes'
-
 Plug 'junegunn/vim-easy-align'
 
 Plug 'Yggdroot/indentLine' "indent line可视
@@ -52,27 +49,24 @@ Plug 'skywind3000/vim-quickui' "菜单栏
 Plug 'derekwyatt/vim-fswitch' "h文件cpp文件切换
 Plug 'derekwyatt/vim-protodef' "def
 
-"2种函数列表
-" Plug 'majutsushi/tagbar' 
-Plug 'liuchengxu/vista.vim'
+Plug 'liuchengxu/vista.vim' "函数列表
 
 Plug 'tpope/vim-fugitive' "git神器
 
-" Plug 'dbgx/lldb.nvim'
+Plug 'tpope/vim-dispatch'
+Plug 'ilyachur/cmake4vim'
 
-Plug 'vhdirk/vim-cmake' "cmake 插件
-" Plug 'jalcine/cmake.vim'
-" Plug 'ilyachur/cmake4vim'
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'junegunn/fzf.vim'
 
-Plug 'tpope/vim-dispatch'
-
-Plug 'mhinz/vim-startify'
+Plug 'mhinz/vim-startify' "fancy start screen
 
 Plug 'luochen1990/rainbow' "彩色括号
 
 Plug 'puremourning/vimspector' "debug神器
+
+Plug 'skywind3000/asynctasks.vim'
+Plug 'skywind3000/asyncrun.vim'
 
 call plug#end()
 
@@ -401,26 +395,6 @@ endif
 "endif
 
 " }}}
-"auto make{{{
-
-function! s:make_type(type_name)
-	let g:cmake_build_type = a:type_name
-endfunction
-command -nargs=? Bt call s:make_type(<f-args>)
-
-:command! Amake silent w | silent CMake | silent make | unsilent redraw! | cwindow
-
-function! s:make_target(target_name)
-	let s:build_target_name = a:target_name
-	exe ":silent !rm bin/" . a:target_name
-	silent wa
-	silent CMake
-	exe ":make " . a:target_name
-	exe ":!bin/" . a:target_name
-endfunction
-command -nargs=? Run call s:make_target(<f-args>)
-
-"}}}
 "auto mark when quit{{{
 
 silent! autocmd QuitPre mM
@@ -491,6 +465,9 @@ let g:python3_host_prog='/usr/local/bin/python3'
 " ===
 " Non-standard {{{
 " ---
+"
+
+inoremap jk <esc>
 
 " Disable arrow movement, resize splits instead.
 " if get(g:, 'elite_mode')
@@ -1707,4 +1684,19 @@ nmap <silent> <Leader>dc :call vimspector#Continue()<CR>
 nmap <silent> <Leader>dx :call vimspector#Reset()<CR>
 command -nargs=? Bpc call vimspector#ToggleBreakpoint([ { 'condition': '<f-args>' } ])
 
+"}}}
+"async task{{{
+
+"告诉 asyncrun 运行时自动打开高度为 6 的 quickfix 窗口，不然你看不到任何输出，除非你自己手动用 :copen 打开它。
+let g:asyncrun_open = 10
+
+" ring the bell to notify you job finished
+let g:asyncrun_bell = 1
+
+" F10 to toggle quickfix window
+nnoremap <F10> :call asyncrun#quickfix_toggle(6)<cr>
+
+let g:asyncrun_rootmarks = ['.git', '.svn', '.root', '.project', '.hg']
+
+let g:asynctasks_system = 'macos'
 "}}}
