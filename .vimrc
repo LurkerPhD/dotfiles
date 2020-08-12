@@ -21,11 +21,14 @@ Plug 'kristijanhusak/defx-git'
 " Plug 'w0ng/vim-hybrid'
 Plug 'morhetz/gruvbox'
 
+Plug 'easymotion/vim-easymotion'
+
 Plug 'junegunn/vim-easy-align'
 
 Plug 'Yggdroot/indentLine' "indent line可视
 
 Plug 'tpope/vim-surround' "surround神器
+
 Plug 'tpope/vim-commentary' "自动注释
 
 Plug 'honza/vim-snippets' " 内置了一堆语言的自动补全片段
@@ -47,6 +50,7 @@ Plug 'neoclide/vim-easygit'
 Plug 'skywind3000/vim-quickui' "菜单栏
 
 Plug 'derekwyatt/vim-fswitch' "h文件cpp文件切换
+
 Plug 'derekwyatt/vim-protodef' "def
 
 Plug 'liuchengxu/vista.vim' "函数列表
@@ -54,19 +58,22 @@ Plug 'liuchengxu/vista.vim' "函数列表
 Plug 'tpope/vim-fugitive' "git神器
 
 Plug 'tpope/vim-dispatch'
-Plug 'ilyachur/cmake4vim'
 
-" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-" Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 Plug 'mhinz/vim-startify' "fancy start screen
 
-Plug 'luochen1990/rainbow' "彩色括号
+" Plug 'luochen1990/rainbow' "彩色括号
 
 Plug 'puremourning/vimspector' "debug神器
 
 Plug 'skywind3000/asynctasks.vim'
 Plug 'skywind3000/asyncrun.vim'
+
+Plug 'Shatur95/vim-cmake-projects'
+
+Plug 'Shougo/vimproc.vim', {'do' : 'make'} " for spacevim
 
 call plug#end()
 
@@ -578,13 +585,6 @@ cnoremap <Down> <C-n>
 " Switch to the directory of the opened buffer
 map <Leader>cd :lcd %:p:h<CR>:pwd<CR>
 
-" Fast saving
-" nnoremap <silent><Leader>w :write<CR>
-" vnoremap <silent><Leader>w <Esc>:write<CR>
-" nnoremap <silent><C-s> :<C-u>write<CR>
-" vnoremap <silent><C-s> :<C-u>write<CR>
-" cnoremap <silent><C-s> <C-u>write<CR>
-
 " }}}
 " Editor UI {{{
 " ---------
@@ -705,6 +705,9 @@ set background=dark
 "}}}
 " coc configuration{{{
 
+" To enable highlight current symbol on CursorHold, add:
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
 " if hidden is not set, TextEdit might fail.
 set hidden
 
@@ -752,7 +755,18 @@ nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 " Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
+" nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gd :call <SID>GoToDefinition()<CR>
+function! s:GoToDefinition()
+  if CocAction('jumpDefinition')
+    return v:true
+  endif
+
+  let ret = execute("silent! normal \<C-]>")
+  if ret =~ "Error" || ret =~ "错误"
+    call searchdecl(expand('<cword>'))
+  endif
+endfunction
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
@@ -1339,12 +1353,12 @@ call quickui#menu#install('&Git', [
 			\ [ 'git &status', 'CocList gstatus' ],
 			\ [ 'git &diff', 'GdiffThis' ],
 			\ [ 'git &chunkinfo', 'CocCommand git.chunkInfo' ],
-			\ [ 'git &toggleGutters', 'CocCommand git.toggleGutters' ],
 			\ ])
 " script inside %{...} will be evaluated and expanded in the string
 call quickui#menu#install("Toggl&e", [
 			\ ['Toggle &wrapper', 'se wrap!'],
 			\ ['Toggle &function list', 'Vista coc'],
+			\ ['Toggle &git gutters', 'CocCommand git.toggleGutters' ],
 			\ ])
 
 " script inside %{...} will be evaluated and expanded in the string
@@ -1433,27 +1447,6 @@ let g:tagbar_type_cpp = {
 			\ 'union'     : 'u'
 			\ }
 			\ }
-"}}}
-"lldb related{{{
-
-" hi LLBreakpointSign ctermfg=cyan guifg=red guibg=cyan
-" hi LLSelectedPCLine ctermbg=DarkGrey guibg=DarkGrey
-
-" nmap <leader>bp <Plug>LLBreakSwitch
-" function! s:run_to_cursor()
-" 	LLBreakSwitch
-" 	LL continue
-" 	LLBreakSwitch
-" endfunction
-" nmap <leader>rtc :call <SID>run_to_cursor()<CR>
-" vmap <F2> <Plug>LLStdInSelected
-" nnoremap <F4> :LLstdin<CR>
-" nnoremap <F5> :LLmode debug<CR>
-" nnoremap <S-F5> :LLmode code<CR>
-" nnoremap <F8> :LL continue<CR>
-" nnoremap <S-F8> :LL process interrupt<CR>
-" nnoremap <F9> :LL print <C-R>=expand('<cword>')<CR>
-" vnoremap <F9> :<C-U>LL print <C-R>=lldb#util#get_selection()<CR><CR>
 "}}}
 "easy align{{{
 vmap <Leader>a <Plug>(EasyAlign)
@@ -1618,6 +1611,12 @@ let g:vista#renderer#icons = {
 \  }
 "}}}
 "rainbow{{{
+
+augroup rainbow_off
+    au!
+    au FileType cmake RainbowToggleOff
+augroup END
+
 let g:rainbow_active = 1"
 let g:rainbow_conf = {
 \   'guifgs': ['darkorange3', 'seagreen3', 'royalblue3', 'firebrick'],
@@ -1640,7 +1639,8 @@ let g:rainbow_conf = {
 \       },
 \       'css': 0,
 \   }
-\}"}}}
+\ }
+"}}}
 "additional vim c++ syntax highlighting{{{
 
 
@@ -1678,11 +1678,15 @@ let g:vimspector_enable_mappings = 'VISUAL_STUDIO'
 
 " packadd! vimspector
 
-nmap <silent> <leader>dd :call vimspector#Launch()<CR>
-nmap <silent> <Leader>db :call vimspector#ToggleBreakpoint()<CR>
+nmap <silent> <leader>dl :call vimspector#Launch()<CR>
+nmap <silent> <Leader>dd :call vimspector#ToggleBreakpoint()<CR>
 nmap <silent> <Leader>dc :call vimspector#Continue()<CR>
 nmap <silent> <Leader>dx :call vimspector#Reset()<CR>
-command -nargs=? Bpc call vimspector#ToggleBreakpoint([ { 'condition': '<f-args>' } ])
+nmap <silent> <Leader>di :call vimspector#StepInto()<CR>
+nmap <silent> <Leader>du :call vimspector#StepOut()<CR>
+nmap <silent> <Leader>do :call vimspector#StepOver()<CR>
+command -nargs=? BreakWhen call vimspector#ToggleBreakpoint([ { 'condition': <q-args> } ])
+command -nargs=? BreakAtFunction -complete=tag call vimspector#AddFunctionBreakpoint(<q-args>)
 
 "}}}
 "async task{{{
@@ -1699,4 +1703,22 @@ nnoremap <F10> :call asyncrun#quickfix_toggle(6)<cr>
 let g:asyncrun_rootmarks = ['.git', '.svn', '.root', '.project', '.hg']
 
 let g:asynctasks_system = 'macos'
+"}}}
+"easy motion{{{
+let g:EasyMotion_do_mapping = 0 " Disable default mappings
+
+" Jump to anywhere you want with minimal keystrokes, with just one key binding.
+" `s{char}{label}`
+nmap <Leader>f <Plug>(easymotion-overwin-f)
+" or
+" `s{uhar}{char}{label}`
+" Need one more keystroke, but on average, it may be more comfortable.
+nmap <Leader>f <Plug>(easymotion-overwin-f2)
+
+" Turn on case-insensitive feature
+let g:EasyMotion_smartcase = 1
+
+" JK motions: Line motions
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
 "}}}
