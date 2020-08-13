@@ -25,14 +25,14 @@ bing() {
 	for term in $@; do
 		search="$search $term"
 	done
-	open "http://cn.bing.com/search?q=" 
+	open "http://cn.bing.com/search?q="
 }
 
 neofetch
 
 export SDKROOT="$(xcrun --show-sdk-path)"
 # Load RVM into a shell session *as a function*
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" 
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
 # export PATH="$PATH:/usr/local/opt/llvm/bin"
 # export PATH="/usr/local/opt/llvm/bin:$PATH"
