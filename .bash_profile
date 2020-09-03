@@ -5,6 +5,8 @@ export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 alias ls="ls -GFh -a"
 
+alias vimconfig="nvim ~/.vim"
+
 # alias vim=nvim
 
 setopt NO_LIST_BEEP MENU_COMPLETE AUTO_MENU
@@ -25,7 +27,7 @@ bing() {
 	for term in $@; do
 		search="$search $term"
 	done
-	open "http://cn.bing.com/search?q="
+	open "http://cn.bing.com/search?q=$search"
 }
 
 neofetch
@@ -36,11 +38,11 @@ export SDKROOT="$(xcrun --show-sdk-path)"
 
 # export PATH="$PATH:/usr/local/opt/llvm/bin"
 # export PATH="/usr/local/opt/llvm/bin:$PATH"
-C_INCLUDE_PATH=/usr/local/include/
-export C_INCLUDE_PATH
-CPLUS_INCLUDE_PATH=/usr/local/include/
-export CPLUS_INCLUDE_PATH
-export LIBRARY_PATH=/usr/local/lib/
+# C_INCLUDE_PATH=/usr/local/include/
+# export C_INCLUDE_PATH
+# CPLUS_INCLUDE_PATH=/usr/local/include/
+# export CPLUS_INCLUDE_PATH
+# export LIBRARY_PATH=/usr/local/lib/
 
 debug(){
 	mkdir build

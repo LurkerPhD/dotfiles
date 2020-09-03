@@ -61,3 +61,5 @@ fi
 # Change extension names to the extensions you need
 npm install coc-snippets --global-style --ignore-scripts --no-bin-links --no-package-lock --only=prod
 
+gem sources --remove https://rubygems.org/
+gem source -a https://ruby.taobao.org/

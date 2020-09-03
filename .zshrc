@@ -72,8 +72,8 @@ plugins=(git
 	autojump
 	colored-man-pages
 	zsh-autosuggestions
-	# vi-mode 
-	)       
+	# vi-mode
+	)
 
 	source ~/.bash_profile
 
@@ -110,7 +110,7 @@ plugins=(git
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
 # export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles
 
-# color for less and man 
+# color for less and man
 export MANPAGER='less -s -M +Gg'
 export LESS="--RAW-CONTROL-CHARS"
 lesscolors=$HOME/bin/.LESS_TERMCAP
@@ -128,3 +128,5 @@ eval "$(pyenv init -)"
 export PATH="/usr/bin:${PATH}"
 export PYTHONPATH="/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Resources/Python3:${PYTHONPATH}"
 export PATH="/usr/local/opt/llvm/bin:$PATH"
+
+export TERM=xterm-256color
