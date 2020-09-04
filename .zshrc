@@ -69,17 +69,17 @@ ZSH_THEME="ys"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git
-	autojump
-	colored-man-pages
-	zsh-autosuggestions
-	# vi-mode
-	)
+  autojump
+  colored-man-pages
+  zsh-autosuggestions
+  # vi-mode
+)
 
-	source ~/.bash_profile
+source ~/.bash_profile
 
-	source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-	source $ZSH/oh-my-zsh.sh
+source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
@@ -127,6 +127,7 @@ eval "$(pyenv init -)"
 # export PYTHONPATH="/usr/local/bin/python2:${PYTHONPATH}"
 export PATH="/usr/bin:${PATH}"
 export PYTHONPATH="/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Resources/Python3:${PYTHONPATH}"
-export PATH="/usr/local/opt/llvm/bin:$PATH"
 
 export TERM=xterm-256color
+export LDFLAGS="-L/usr/local/opt/llvm/lib"
+export CPPFLAGS="-I/usr/local/opt/llvm/include"
