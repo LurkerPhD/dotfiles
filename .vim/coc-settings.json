@@ -1,0 +1,75 @@
+{
+  "coc.preferences.extensionUpdateCheck": "daily",
+
+  "suggest.acceptSuggestionOnCommitCharacter": true,
+  "suggest.timeout": 5000,
+  "suggest.noselect": true,
+  "suggest.completionItemKindLabels": {
+    "class": "",
+    "color": "",
+    "constant": "",
+    "default": "",
+    "enum": "",
+    "enumMember": "",
+    "event": "鬒",
+    "field": "m",
+    "file": "",
+    "folder": "",
+    "function": "F",
+    "interface": "",
+    "keyword": "",
+    "method": "f",
+    "module": "",
+    "operator": "Ψ",
+    "property": "",
+    "reference": "r",
+    "snippet": "",
+    "struct": "פּ",
+    "text": "",
+    "typeParameter": "",
+    "unit": "",
+    "value": "",
+    "variable": ""
+  },
+
+  "diagnostic.signOffset": 9999,
+  "diagnostic.errorSign": "x",
+  "diagnostic.warningSign": "!",
+  "diagnostic.infoSign": "■",
+  "diagnostic.hintSign": "●",
+  "diagnostic.displayByAle": false,
+  "diagnostic.maxWindowHeight": 10,
+
+  "languageserver": {
+    // "ccls": {
+    //   "command": "ccls",
+    //   "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"],
+    //   "rootPatterns": [".ccls", "compile_commands.json", ".git/", ".hg/"],
+    //   "initializationOptions": {
+    //     "cache": {
+    //       "directory": ".ccls-cache"
+    //     },
+    //     "clang": {
+    //       "resourceDir": "/usr/local/opt/llvm/lib/clang/10.0.0",
+    //       "extraArgs": [
+    //         "-isystem",
+    //         "/usr/local/opt/llvm/include/c++/v1",
+    //         "-isystem",
+    //         "/usr/local/Cellar/llvm/10.0.0_3/lib/clang/10.0.0/include",
+    //         "-isystem",
+    //         "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
+    //         "-isystem",
+    //         "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+    //       ]
+    //     },
+    //     "highlight": { "lsRanges": true }
+    //   }
+    // }
+  },
+  "clangd.enabled": true,
+  "clangd.checkUpdates": true,
+  "clangd.semanticHighlighting": true,
+  "clangd.path": "/usr/local/opt/llvm/bin/clangd",
+  "pairs.enableBackspace": true,
+  "git.enableGutters": false
+}

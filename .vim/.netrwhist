@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =7
+let g:netrw_dirhist_7='/Users/lurker.phd/Documents/dotfiles'
+let g:netrw_dirhist_6='/Users/lurker.phd/Documents/geoxfem'
+let g:netrw_dirhist_5='/Users/lurker.phd/Documents/c'
+let g:netrw_dirhist_4='/private/tmp/c'
+let g:netrw_dirhist_3='/Users/lurker.phd/.vim'
+let g:netrw_dirhist_2='/Users'
+let g:netrw_dirhist_1='/Users/lurker.phd'
+let g:netrw_dirhist_0='/Users/lurker.phd/.vim'
+let g:netrw_dirhist_9='/Users/lurker.phd/Documents/geoxfem'
+let g:netrw_dirhist_8='/Users/lurker.phd/.vim'
